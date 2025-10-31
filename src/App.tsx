@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './components/Login';
 import FileUpload from './components/FileUpload';
+import Navbar from './components/Navbar';
 import { checkAuth, logout } from './utils/auth';
 import './App.css';
 
@@ -41,18 +43,52 @@ export default function App() {
     );
   }
 
+  const Home = () => (
+    <div className="container">
+      <h1>Välkommen till Elegante</h1>
+      <p>smak, stil och glädje</p>
+    </div>
+  );
+
+  const Menu = () => (
+    <div className="container">
+      <h1>Meny</h1>
+      <p>Här visar vi rätter från backend senare.</p>
+    </div>
+  );
+
+  const Reservation = () => (
+    <div className="container">
+      <h1>Boka bord</h1>
+      <p>Form kommer i nästa steg.</p>
+    </div>
+  );
+
+  const Cart = () => (
+    <div className="container">
+      <h1>Varukorg</h1>
+      <p>Beställningar visas här.</p>
+    </div>
+  );
+
   return (
-    <>
+    <BrowserRouter>
       {isAuthenticated && (
         <div className="logout-bar">
           Logged in as: <strong>{username}</strong> |{' '}
-          <button onClick={handleLogout} className="logout-button">
-            Logout
-          </button>
+          <button onClick={handleLogout} className="logout-button">Logout</button>
         </div>
       )}
-
-      {isAuthenticated ? <FileUpload /> : <Login onLoginSuccess={handleLoginSuccess} />}
-    </>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/menu" element={<Menu />} />
+        <Route path="/boka-bord" element={<Reservation />} />
+        <Route path="/varukorg" element={<Cart />} />
+        <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
+        <Route path="/upload" element={isAuthenticated ? <FileUpload /> : <Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
