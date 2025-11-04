@@ -1,3 +1,4 @@
+import { CartProvider } from './context/CartContext';
 import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './components/Login';
@@ -76,6 +77,7 @@ export default function App() {
   );
 
   return (
+    <CartProvider>
     <BrowserRouter>
       {isAuthenticated && (
         <div className="logout-bar">
@@ -94,5 +96,6 @@ export default function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
+    </CartProvider>
   );
 }
