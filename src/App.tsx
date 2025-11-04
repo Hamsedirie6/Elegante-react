@@ -5,6 +5,10 @@ import FileUpload from './components/FileUpload';
 import Navbar from './components/Navbar';
 import { checkAuth, logout } from './utils/auth';
 import './App.css';
+import HomeView from './views/home';
+import MenuView from './views/menu';
+import ReservationView from './views/Reservation';
+import CartView from './views/Cart';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -81,10 +85,10 @@ export default function App() {
       )}
       <Navbar />
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/menu" element={<Menu />} />
-        <Route path="/boka-bord" element={<Reservation />} />
-        <Route path="/varukorg" element={<Cart />} />
+        <Route path="/" element={<HomeView />} />
+        <Route path="/menu" element={<MenuView />} />
+        <Route path="/boka-bord" element={<ReservationView />} />
+        <Route path="/varukorg" element={<CartView />} />
         <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
         <Route path="/upload" element={isAuthenticated ? <FileUpload /> : <Navigate to="/login" replace />} />
         <Route path="*" element={<Navigate to="/" replace />} />

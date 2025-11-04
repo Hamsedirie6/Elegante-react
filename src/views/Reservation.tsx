@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { api } from '../services/api';
 
 export default function Reservation() {
   const [loading, setLoading] = useState(false);
@@ -9,9 +10,7 @@ export default function Reservation() {
     e.preventDefault();
     setLoading(true);
     try {
-      // TODO: Anropa backend, t.ex.:
-      // await fetch('/api/reservations', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
-      await new Promise(r => setTimeout(r, 500));
+      await api.createReservation(form);
       setSaved(true);
     } finally {
       setLoading(false);

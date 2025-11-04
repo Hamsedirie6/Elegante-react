@@ -6,11 +6,11 @@ export default function Navbar() {
       <div className="nav-inner">
         <NavLink to="/" className="brand">Elegante</NavLink>
         <nav className="nav-links">
-          <NavLink to="/">Hem</NavLink>
-          <NavLink to="/menu">Meny</NavLink>
-          <NavLink to="/boka-bord">Boka bord</NavLink>
-          <NavLink to="/varukorg">Varukorg</NavLink>
-          <NavLink to="/login">Logga in</NavLink>
+          <NavLink to="/" className={({isActive}) => isActive ? 'active' : undefined}>Hem</NavLink>
+          <NavLink to="/menu" className={({isActive}) => isActive ? 'active' : undefined}>Meny</NavLink>
+          <NavLink to="/boka-bord" className={({isActive}) => `btn primary ${isActive ? 'active' : ''}`}>Boka bord</NavLink>
+          <NavLink to="/varukorg" className={({isActive}) => isActive ? 'active' : undefined}>Varukorg</NavLink>
+          <NavLink to="/login" className={({isActive}) => isActive ? 'active' : undefined}>Logga in</NavLink>
         </nav>
       </div>
     </header>
