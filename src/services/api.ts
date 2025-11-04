@@ -15,6 +15,6 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
 export const api = {
   getMenu: () => apiFetch<any[]>('/menu'),
   createReservation: (payload: any) => apiFetch('/reservations', { method: 'POST', body: JSON.stringify(payload) }),
-  createOrder: (payload: any) => apiFetch('/orders', { method: 'POST', body: JSON.stringify(payload) }),
+  createOrder: (payload: any) => apiFetch<{ id: string }>('/orders', { method: 'POST', body: JSON.stringify(payload) }),
   getOrder: (id: string) => apiFetch<any>(`/orders/${id}`),
 };
