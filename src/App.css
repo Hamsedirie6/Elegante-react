@@ -162,3 +162,99 @@ body {
   border-bottom: 1px solid var(--border);
   font-size: 14px;
 }
+
+
+.hero {
+  position: relative;
+  height: 360px;
+  background: url('https://images.unsplash.com/photo-1541542684-4a1c9c55698f?q=80&w=1600&auto=format&fit=crop') center/cover no-repeat
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgba(0, 0, 0, .45), rgba(0, 0, 0, .45));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  gap: 12px
+}
+
+.hero-overlay h1 {
+  margin: 0;
+  font-size: 48px;
+  line-height: 1.1
+}
+
+.hero-overlay p {
+  margin: 0 0 12px;
+  font-size: 18px;
+  opacity: .95
+}
+
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 24px
+}
+
+.card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px
+}
+
+
+.cart-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 12px
+}
+
+.cart-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px
+}
+
+.cart-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto auto;
+  gap: 8px;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  background: #fff
+}
+
+.qty {
+  display: flex;
+  gap: 6px;
+  align-items: center
+}
+
+.qty input {
+  width: 56px;
+  text-align: center;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 6px
+}
+
+.total {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  align-items: center;
+  margin-top: 12px;
+  font-size: 18px
+}
