@@ -1,13 +1,16 @@
-import { useEffect, useRef, useState } from 'react';
-import { useCart } from '../context/CartContext';
+import { useEffect, useState } from 'react';
 import { api } from '../services/api';
+import { useCart } from '../context/CartContext';
 
 type Dish = { id: string; name: string; description: string; price: number; image?: string };
 
 const placeholder: Dish[] = [
-  { id: '1', name: 'Bruschetta Classica', description: 'Färska tomater, basilika, vitlök', price: 95 },
-  { id: '2', name: 'Pasta Carbonara', description: 'Klassisk carbonara', price: 185 },
-  { id: '3', name: 'Pizza Margherita', description: 'Tomatsås, mozzarella, basilika', price: 165 }
+  { id: '1', name: 'Bruschetta Classica', description: 'Färska tomater, basilika, vitlök på rostat surdegsbröd', price: 95, image: 'https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=1200&auto=format&fit=crop' },
+  { id: '2', name: 'Pasta Carbonara', description: 'Klassisk carbonara med pancetta, ägg och parmesan', price: 185, image: 'https://images.unsplash.com/photo-1521389508051-d7ffb5dc8bbf?q=80&w=1200&auto=format&fit=crop' },
+  { id: '3', name: 'Pizza Margherita', description: 'Tomatsås, mozzarella, basilika', price: 165, image: 'https://images.unsplash.com/photo-1548365328-9f547fb0953b?q=80&w=1200&auto=format&fit=crop' },
+  { id: '4', name: 'Grillad Lax', description: 'Färsk lax med rostad citron och grönsaker', price: 245, image: 'https://images.unsplash.com/photo-1604908554027-6155c1f39d3a?q=80&w=1200&auto=format&fit=crop' },
+  { id: '5', name: 'Risotto ai Funghi', description: 'Krämig risotto med svamp och parmesan', price: 195, image: 'https://images.unsplash.com/photo-1476127394940-6d33b6a3b54b?q=80&w=1200&auto=format&fit=crop' },
+  { id: '6', name: 'Tiramisu', description: 'Klassisk italiensk dessert med mascarpone och kaffe', price: 85, image: 'https://images.unsplash.com/photo-1604908883213-2a3d549274a9?q=80&w=1200&auto=format&fit=crop' }
 ];
 
 export default function Menu() {
@@ -16,57 +19,51 @@ export default function Menu() {
   const { add } = useCart();
 
   useEffect(() => {
-    // TODO: Byt till fetch('/api/menu') när endpoint finns
-    setItems(placeholder);
-    setLoading(false);
+    let mounted = true;
+    api.getMenu()
+      .then(data => { if (mounted) setItems(Array.isArray(data) && data.length ? data : placeholder); })
+      .catch(() => { if (mounted) setItems(placeholder); })
+      .finally(() => { if (mounted) setLoading(false); });
+    return () => { mounted = false; };
   }, []);
 
   if (loading) {
     return <div className="container"><p>Laddar meny…</p></div>;
   }
 
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    const handler = (e: Event) => {
-      const target = e.target as HTMLElement | null;
-      if (!target) return;
-      if (target.matches('button.btn.primary')) {
-        const card = target.closest('div[data-id]') as HTMLElement | null;
-        if (!card) return;
-        const id = card.getAttribute('data-id') || '';
-        const name = (card.querySelector('h3')?.textContent || '').trim();
-        const priceText = (card.querySelector('strong')?.textContent || '0').replace(/[^0-9]/g, '');
-        const price = parseInt(priceText, 10) || 0;
-        if (id && name && price > 0) {
-          add({ id, name, price, quantity: 1 });
-        }
-      }
-    };
-    el.addEventListener('click', handler);
-    return () => el.removeEventListener('click', handler);
-  }, [add]);
-
   return (
-    <div className="container" ref={containerRef}>
-      <h1>Vår Meny</h1>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))', gap: 16 }}>
+    <div className="container menu-container">
+      <header className="menu-header">
+        <h1>Vår Meny</h1>
+        <p>Upptäck våra autentiska italienska rätter tillagade med kärlek och passion</p>
+      </header>
+
+      <div className="menu-grid">
         {items.map(i => (
-          <div key={i.id} data-id={i.id} style={{ border: '1px solid #e6e6e6', borderRadius: 8, padding: 12, background: '#fff' }}>
-            <h3 style={{ marginTop: 0 }}>{i.name}</h3>
-            <p style={{ color: '#666' }}>{i.description}</p>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <strong>{i.price} kr</strong>
-              <button className="btn primary">+ Lägg till</button>
+          <article className="menu-card" key={i.id}>
+            {i.image && (
+              <div className="menu-card-media">
+                <img src={i.image} alt={i.name} loading="lazy" />
+              </div>
+            )}
+            <div className="menu-card-body">
+              <h3>{i.name}</h3>
+              <p className="muted">{i.description}</p>
+              <div className="menu-card-actions">
+                <strong>{i.price} kr</strong>
+                <button className="btn primary" onClick={() => add({ id: i.id, name: i.name, price: i.price, quantity: 1 })}>
+                  + Lägg till
+                </button>
+              </div>
             </div>
-          </div>
+          </article>
         ))}
+      </div>
+
+      <div className="menu-footer">
+        <button className="btn">Visa fler rätter</button>
       </div>
     </div>
   );
 }
 
-
- 
