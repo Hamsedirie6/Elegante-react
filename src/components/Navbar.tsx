@@ -12,8 +12,10 @@ export default function Navbar() {
         <nav className="nav-links">
           <NavLink to="/" className={({isActive}) => isActive ? 'active' : undefined}>Hem</NavLink>
           <NavLink to="/menu" className={({isActive}) => isActive ? 'active' : undefined}>Meny</NavLink>
-          <NavLink to="/boka-bord" className={({isActive}) => `btn primary ${isActive ? 'active' : ''}`}>Boka bord</NavLink>
-          <NavLink to="/varukorg">Varukorg <span className="badge">{count}</span></NavLink>
+          <NavLink to="/boka-bord" className={({isActive}) => isActive ? 'active' : undefined}>Boka bord</NavLink>
+          <NavLink to="/varukorg" className={({isActive}) => isActive ? 'active' : undefined}>
+            Varukorg{count > 0 ? ` ${count}` : ''}
+          </NavLink>
           <NavLink to="/login" className={({isActive}) => isActive ? 'active' : undefined}>Logga in</NavLink>
         </nav>
       </div>
