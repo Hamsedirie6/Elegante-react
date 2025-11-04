@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { api } from '../services/api';
 
 type Dish = { id: string; name: string; description: string; price: number; image?: string };
 
