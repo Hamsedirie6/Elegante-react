@@ -55,6 +55,16 @@ public static class PutRoutes
                     return Results.Json(new { error = "Content item not found" }, statusCode: 404);
                 }
 
+                // Enforce ownership if applicable
+                if (PermissionsACL.ShouldRestrictToOwner(contentType, context.User))
+                {
+                    var currentUser = context.User?.Identity?.Name ?? "";
+                    if (!string.Equals(contentItem?.Owner, currentUser, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return Results.Json(new { error = "Forbidden", message = "You can only edit your own items" }, statusCode: 403);
+                    }
+                }
+
                 // Validate fields
                 var validFields = await FieldValidator.GetValidFieldsAsync(contentType, contentManager, session);
                 var (isValid, invalidFields) = FieldValidator.ValidateFields(body, validFields, RESERVED_FIELDS);
