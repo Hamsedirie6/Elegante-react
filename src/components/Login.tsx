@@ -71,6 +71,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
       </form>
 
       <p className="hint-text">Default credentials: tom / Abcd1234!</p>
+      <p className="hint-text">Har du inget konto? <a href="/registrera">Skapa konto</a></p>
     </div>
   );
 }

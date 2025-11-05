@@ -10,12 +10,13 @@ export default function Navbar() {
       <div className="nav-inner">
         <NavLink to="/" className="brand">Elegante</NavLink>
         <nav className="nav-links">
-          <NavLink to="/" className={({isActive}) => isActive ? 'active' : undefined}>Hem</NavLink>
+          <NavLink to="/" end className={({isActive}) => isActive ? 'active' : undefined}>Hem</NavLink>
           <NavLink to="/menu" className={({isActive}) => isActive ? 'active' : undefined}>Meny</NavLink>
           <NavLink to="/boka-bord" className={({isActive}) => isActive ? 'active' : undefined}>Boka bord</NavLink>
           <NavLink to="/varukorg" className={({isActive}) => isActive ? 'active' : undefined}>
             Varukorg{count > 0 ? ` ${count}` : ''}
           </NavLink>
+          <NavLink to="/registrera" className={({isActive}) => isActive ? 'active' : undefined}>Registrera</NavLink>
           <NavLink to="/login" className={({isActive}) => isActive ? 'active' : undefined}>Logga in</NavLink>
         </nav>
       </div>
