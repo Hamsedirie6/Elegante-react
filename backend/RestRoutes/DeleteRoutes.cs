@@ -28,6 +28,16 @@ public static class DeleteRoutes
                     return Results.Json(new { error = "Content item not found" }, statusCode: 404);
                 }
 
+                // Enforce ownership if applicable
+                if (PermissionsACL.ShouldRestrictToOwner(contentType, context.User))
+                {
+                    var currentUser = context.User?.Identity?.Name ?? "";
+                    if (!string.Equals(contentItem?.Owner, currentUser, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return Results.Json(new { error = "Forbidden", message = "You can only delete your own items" }, statusCode: 403);
+                    }
+                }
+
                 // Remove the content item
                 await contentManager.RemoveAsync(contentItem);
                 await session.SaveChangesAsync();
