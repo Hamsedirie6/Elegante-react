@@ -4,12 +4,39 @@ using System.Security.Claims;
 
 public static class PermissionsACL
 {
+    private static readonly HashSet<string> OWNER_ONLY_TYPES = new(StringComparer.OrdinalIgnoreCase)
+    {
+        // Common names this app uses
+        "orders", "order",
+        "reservations", "reservation", "booking", "bookings"
+    };
+
+    public static bool ShouldRestrictToOwner(string contentType, ClaimsPrincipal user)
+    {
+        if (user.Identity?.IsAuthenticated != true) return false;
+        var isCustomer = user.IsInRole("Customer");
+        return isCustomer && OWNER_ONLY_TYPES.Contains(contentType);
+    }
+
+    public static string? GetOwnerFilter(string contentType, HttpContext context)
+    {
+        return ShouldRestrictToOwner(contentType, context.User)
+            ? (context.User.Identity?.Name ?? "")
+            : null;
+    }
+
     public static async Task<IResult?> CheckPermissions(
         string contentType,
         string httpMethod,
         HttpContext context,
         YesSql.ISession session)
     {
+        // Administrators have full access
+        if (context.User.Identity?.IsAuthenticated == true && context.User.IsInRole("Administrator"))
+        {
+            return null;
+        }
+
         // Fetch all RestPermissions
         var permissions = await GetRoutes.FetchCleanContent("RestPermissions", session, populate: false);
 
