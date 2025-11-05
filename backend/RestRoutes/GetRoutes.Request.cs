@@ -11,13 +11,20 @@ public static partial class GetRoutes
     public static async Task<List<Dictionary<string, object>>> FetchCleanContent(
         string contentType,
         YesSql.ISession session,
-        bool populate = true)
+        bool populate = true,
+        string? owner = null)
     {
-        var contentItems = await session
+        var query = session
             .Query()
             .For<ContentItem>()
-            .With<ContentItemIndex>(x => x.ContentType == contentType && x.Published)
-            .ListAsync();
+            .With<ContentItemIndex>(x => x.ContentType == contentType && x.Published);
+
+        if (!string.IsNullOrEmpty(owner))
+        {
+            query = query.With<ContentItemIndex>(x => x.Owner == owner);
+        }
+
+        var contentItems = await query.ListAsync();
 
         var jsonOptions = new JsonSerializerOptions
         {
@@ -74,13 +81,20 @@ public static partial class GetRoutes
     // Fetch raw content without cleanup (for debugging/edge cases)
     public static async Task<List<Dictionary<string, object>>> FetchRawContent(
         string contentType,
-        YesSql.ISession session)
+        YesSql.ISession session,
+        string? owner = null)
     {
-        var contentItems = await session
+        var query = session
             .Query()
             .For<ContentItem>()
-            .With<ContentItemIndex>(x => x.ContentType == contentType && x.Published)
-            .ListAsync();
+            .With<ContentItemIndex>(x => x.ContentType == contentType && x.Published);
+
+        if (!string.IsNullOrEmpty(owner))
+        {
+            query = query.With<ContentItemIndex>(x => x.Owner == owner);
+        }
+
+        var contentItems = await query.ListAsync();
 
         var jsonOptions = new JsonSerializerOptions
         {
