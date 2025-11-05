@@ -34,7 +34,7 @@ export default function Checkout() {
 
   return (
     <div className="container">
-      <h1>Kassa</h1>
+      <h1>Betalning</h1>
       <div className="checkout-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         <section>
           <h3>Ordersammanfattning</h3>

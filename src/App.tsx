@@ -2,6 +2,7 @@ import { CartProvider } from './context/CartContext';
 import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './components/Login';
+import Register from './components/Register';
 import FileUpload from './components/FileUpload';
 import Navbar from './components/Navbar';
 import { checkAuth, logout } from './utils/auth';
@@ -10,6 +11,10 @@ import HomeView from './views/home';
 import MenuView from './views/menu';
 import ReservationView from './views/Reservation';
 import CartView from './views/Cart';
+import CheckoutView from './views/Checkout';
+import OrderView from './views/Order';
+import KitchenView from './views/Kitchen';
+import AdminView from './views/Admin';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -91,6 +96,13 @@ export default function App() {
         <Route path="/menu" element={<MenuView />} />
         <Route path="/boka-bord" element={<ReservationView />} />
         <Route path="/varukorg" element={<CartView />} />
+        <Route path="/kassa" element={<CheckoutView />} />
+        <Route path="/order/:id" element={<OrderView />} />
+        {/* Kökssida (dold – vi begränsar behörighet senare) */}
+        <Route path="/kok" element={<KitchenView />} />
+        {/* Admin (dold – framtida behörighet) */}
+        <Route path="/admin" element={<AdminView />} />
+        <Route path="/registrera" element={<Register />} />
         <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
         <Route path="/upload" element={isAuthenticated ? <FileUpload /> : <Navigate to="/login" replace />} />
         <Route path="*" element={<Navigate to="/" replace />} />

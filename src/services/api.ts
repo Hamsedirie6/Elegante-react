@@ -17,4 +17,13 @@ export const api = {
   createReservation: (payload: any) => apiFetch('/reservations', { method: 'POST', body: JSON.stringify(payload) }),
   createOrder: (payload: any) => apiFetch<{ id: string }>('/orders', { method: 'POST', body: JSON.stringify(payload) }),
   getOrder: (id: string) => apiFetch<any>(`/orders/${id}`),
+  // Auth
+  register: (payload: {
+    username: string;
+    email: string;
+    password: string;
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+  }) => apiFetch('/auth/register', { method: 'POST', body: JSON.stringify(payload) }),
 };
