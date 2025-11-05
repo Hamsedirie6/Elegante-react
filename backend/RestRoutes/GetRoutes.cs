@@ -26,7 +26,8 @@ public static partial class GetRoutes
             if (permissionCheck != null) return permissionCheck;
 
             // Get clean populated data
-            var cleanObjects = await FetchCleanContent(contentType, session, populate: true);
+            var ownerFilter = PermissionsACL.GetOwnerFilter(contentType, context);
+            var cleanObjects = await FetchCleanContent(contentType, session, populate: true, owner: ownerFilter);
 
             // Find the item with matching id
             var item = cleanObjects.FirstOrDefault(obj => obj.ContainsKey("id") && obj["id"]?.ToString() == id);
@@ -53,7 +54,8 @@ public static partial class GetRoutes
             if (permissionCheck != null) return permissionCheck;
 
             // Get clean populated data
-            var cleanObjects = await FetchCleanContent(contentType, session, populate: true);
+            var ownerFilter = PermissionsACL.GetOwnerFilter(contentType, context);
+            var cleanObjects = await FetchCleanContent(contentType, session, populate: true, owner: ownerFilter);
 
             // Apply query filters
             var filteredData = ApplyQueryFilters(context.Request.Query, cleanObjects);
@@ -73,7 +75,8 @@ public static partial class GetRoutes
             if (permissionCheck != null) return permissionCheck;
 
             // Get clean data without population
-            var cleanObjects = await FetchCleanContent(contentType, session, populate: false);
+            var ownerFilter = PermissionsACL.GetOwnerFilter(contentType, context);
+            var cleanObjects = await FetchCleanContent(contentType, session, populate: false, owner: ownerFilter);
 
             // Find the item with matching id
             var item = cleanObjects.FirstOrDefault(obj => obj.ContainsKey("id") && obj["id"]?.ToString() == id);
@@ -100,7 +103,8 @@ public static partial class GetRoutes
             if (permissionCheck != null) return permissionCheck;
 
             // Get clean data without population
-            var cleanObjects = await FetchCleanContent(contentType, session, populate: false);
+            var ownerFilter = PermissionsACL.GetOwnerFilter(contentType, context);
+            var cleanObjects = await FetchCleanContent(contentType, session, populate: false, owner: ownerFilter);
 
             // Apply query filters
             var filteredData = ApplyQueryFilters(context.Request.Query, cleanObjects);
@@ -120,7 +124,8 @@ public static partial class GetRoutes
             if (permissionCheck != null) return permissionCheck;
 
             // Get raw data
-            var rawObjects = await FetchRawContent(contentType, session);
+            var ownerFilter = PermissionsACL.GetOwnerFilter(contentType, context);
+            var rawObjects = await FetchRawContent(contentType, session, owner: ownerFilter);
 
             // Find the item with matching ContentItemId
             var item = rawObjects.FirstOrDefault(obj =>
@@ -148,7 +153,8 @@ public static partial class GetRoutes
             if (permissionCheck != null) return permissionCheck;
 
             // Get raw data
-            var rawObjects = await FetchRawContent(contentType, session);
+            var ownerFilter = PermissionsACL.GetOwnerFilter(contentType, context);
+            var rawObjects = await FetchRawContent(contentType, session, owner: ownerFilter);
 
             // Apply query filters (filtering works on raw data too)
             var filteredData = ApplyQueryFilters(context.Request.Query, rawObjects);
