@@ -3,7 +3,6 @@ import { api } from '../services/api';
 
 export default function Register() {
   const [form, setForm] = useState({
-    username: '',
     email: '',
     password: '',
     confirm: '',
@@ -34,13 +33,14 @@ export default function Register() {
 
     setLoading(true);
     try {
+      const username = (form.email.split('@')[0] || form.email).replace(/[^a-zA-Z0-9_.-]/g, '');
       await api.register({
-        username: form.username,
+        username,
         email: form.email,
         password: form.password,
       });
       setOk('Kontot är skapat. Du kan nu logga in.');
-      setForm({ username: '', email: '', password: '', confirm: '', accept: false });
+      setForm({ email: '', password: '', confirm: '', accept: false });
     } catch (err: any) {
       setError('Registreringen misslyckades. Kontrollera uppgifterna.');
     } finally {
@@ -49,38 +49,73 @@ export default function Register() {
   };
 
   return (
-    <div className="container-small">
-      <h1>Skapa konto</h1>
-      <form className="form" onSubmit={submit}>
-        <div className="form-group">
-          <label className="form-label">Användarnamn</label>
-          <input className="form-input" name="username" value={form.username} onChange={onChange} required />
-        </div>
-        <div className="form-group">
-          <label className="form-label">E‑post</label>
-          <input className="form-input" type="email" name="email" value={form.email} onChange={onChange} required />
-        </div>
-        <div className="form-group">
-          <label className="form-label">Lösenord</label>
-          <input className="form-input" type="password" name="password" value={form.password} onChange={onChange} required />
-        </div>
-        <div className="form-group">
-          <label className="form-label">Bekräfta lösenord</label>
-          <input className="form-input" type="password" name="confirm" value={form.confirm} onChange={onChange} required />
-        </div>
-        {/* Förnamn, efternamn och telefon är borttagna för enkel registrering */}
-        <div className="form-group" style={{display:'flex', alignItems:'center', gap:8}}>
-          <input id="accept" type="checkbox" name="accept" checked={form.accept} onChange={onChange} />
-          <label htmlFor="accept" className="form-label" style={{margin:0}}>Jag godkänner villkoren och integritetspolicyn.</label>
+    <div className="auth-page">
+      <div className="auth-card">
+        <div className="auth-card-head">
+          <div className="auth-icon" aria-hidden>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5Z" fill="white"/>
+              <path d="M4 22c0-3.314 3.582-6 8-6s8 2.686 8 6" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+              <path d="M19 10v-2m-1 1h2" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+          </div>
+          <h2 className="login-card-title" style={{marginTop:8}}>Skapa konto</h2>
         </div>
 
-        {error && <div className="status-error">{error}</div>}
-        {ok && <div className="status-ok">{ok}</div>}
+        <div className="auth-body">
+        <form onSubmit={submit}>
+          <div className="form-group">
+            <input
+              className="form-input"
+              type="email"
+              name="email"
+              placeholder="Email Address"
+              value={form.email}
+              onChange={onChange}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <input
+              className="form-input"
+              type="password"
+              name="password"
+              placeholder="Lösenord"
+              value={form.password}
+              onChange={onChange}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <input
+              className="form-input"
+              type="password"
+              name="confirm"
+              placeholder="Bekräfta lösenord"
+              value={form.confirm}
+              onChange={onChange}
+              required
+            />
+          </div>
 
-        <button className="form-button-full" type="submit" disabled={loading}>
-          {loading ? 'Skapar konto…' : 'Skapa konto'}
-        </button>
-      </form>
+          <label className="checkbox-row">
+            <input type="checkbox" name="accept" checked={form.accept} onChange={onChange} />
+            <span>Jag godkänner användarvillkoren och integritetspolicyn.</span>
+          </label>
+
+          {error && <div className="status-error" role="alert">{error}</div>}
+          {ok && <div className="status-ok">{ok}</div>}
+
+          <button className="form-button-full" type="submit" disabled={loading}>
+            {loading ? 'Skapar konto…' : 'Skapa konto'}
+          </button>
+        </form>
+
+        <p className="auth-footer-note">
+          Har du redan ett konto? <a href="/login" className="link">Logga in</a>
+        </p>
+        </div>
+      </div>
     </div>
   );
 }
