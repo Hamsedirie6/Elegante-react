@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&display=swap');
+
 :root {
   --border: #e6e6e6;
   --fg: #333;
@@ -51,10 +53,12 @@ body {
 }
 
 .brand {
+  font-family: 'Playfair Display', Georgia, serif;
   font-weight: 700;
   color: var(--brand);
   text-decoration: none;
-  font-size: 20px;
+  font-size: 22px;
+  letter-spacing: .2px;
 }
 
 .nav-links a {
@@ -111,8 +115,22 @@ body {
   color: #fff; gap: 12px;
   background: linear-gradient(0deg, rgba(0,0,0,.45), rgba(0,0,0,.45));
 }
-.home-hero-overlay h1 { margin: 0; font-size: 52px; line-height: 1.1; text-align: center; }
-.home-hero-overlay p { margin: 0 0 12px; font-size: 18px; opacity: .95; }
+.home-hero-overlay h1 {
+  margin: 0;
+  font-size: 64px;
+  line-height: 1.1;
+  text-align: center;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-shadow: 0 2px 6px rgba(0,0,0,.35);
+}
+.home-hero-overlay p {
+  margin: 0 0 12px;
+  font-size: 18px;
+  opacity: .95;
+  font-family: system-ui, Segoe UI, Roboto, Arial, sans-serif;
+}
 
 /* Home: info-kort sektion */
 .home-info { background: #f6f7f8; padding: 40px 0; }
@@ -156,11 +174,11 @@ body {
 /* Responsivitet */
 @media (max-width: 992px) {
   .home-hero-image { height: 420px; }
-  .home-hero-overlay h1 { font-size: 42px; }
+  .home-hero-overlay h1 { font-size: 52px; }
   .info-grid { grid-template-columns: 1fr; }
   .home-footer-inner { flex-direction: column; }
 }
 @media (max-width: 640px) {
   .home-hero-image { height: 320px; }
-  .home-hero-overlay h1 { font-size: 34px; }
+  .home-hero-overlay h1 { font-size: 38px; }
 }
