@@ -40,13 +40,14 @@ body {
 }
 
 .nav-inner {
-  max-width: 1100px;
-  margin: 0 auto;
+  width: 100%;
+  margin: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 10px 16px;
+  /* Pull slightly in from the edges */
+  padding: 10px 28px;
 }
 
 .brand {
@@ -63,6 +64,8 @@ body {
   border-bottom: 2px solid transparent;
   padding-bottom: 2px;
 }
+
+.nav-links a:last-child { margin-right: 0; }
 
 .nav-links a.active {
   color: var(--brand);
@@ -99,7 +102,7 @@ body {
 }
 .home-hero-image {
   height: 480px;
-  background: url('https://images.unsplash.com/photo-1541542684-4a1c9c55698f?q=80&w=1600&auto=format&fit=crop') center/cover no-repeat;
+  background: url('https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0c/6d/59/6b/restaurant.jpg?w=500&h=-1&s=1') center/cover no-repeat;
   position: relative;
 }
 .home-hero-overlay {
@@ -144,6 +147,8 @@ body {
 .menu-card-actions{ margin-top:auto; display:flex; align-items:center; justify-content:space-between; }
 .menu-footer{ display:flex; justify-content:center; margin:20px 0 0; }
 .muted{ color:#666; }
+
+/* (Removed guest-only add-to-cart hide; buttons always visible) */
 
 @media (max-width: 992px){ .menu-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media (max-width: 640px){ .menu-grid{ grid-template-columns:1fr; } }
