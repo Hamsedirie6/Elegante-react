@@ -18,45 +18,60 @@ export default function Reservation() {
   };
 
   return (
-    <div className="container">
-      <h1>Boka ditt bord</h1>
-      {saved ? (
-        <p>Tack! Din bokning är mottagen.</p>
-      ) : (
-        <form onSubmit={submit} className="form" style={{ maxWidth: 720 }}>
-          <div className="form-group">
-            <label className="form-label">Datum</label>
-            <input className="form-input" type="date" value={form.date} onChange={e =>
-setForm({ ...form, date: e.target.value })} required />
+    <div className="login-layout">
+      <div className="login-left">
+        <div className="login-left-inner">
+          <div className="login-logo" aria-hidden="true">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7 3C6.44772 3 6 3.44772 6 4V10C6 10.5523 5.55228 11 5 11V21C5 21.5523 5.44772 22 6 22C6.55228 22 7 21.5523 7 21V12H8V21C8 21.5523 8.44772 22 9 22C9.55228 22 10 21.5523 10 21V11C9.44772 11 9 10.5523 9 10V4C9 3.44772 8.55228 3 8 3H7Z" fill="white"/>
+              <path d="M17 3C15.3431 3 14 4.34315 14 6V21C14 21.5523 14.4477 22 15 22C15.5523 22 16 21.5523 16 21V14H18V21C18 21.5523 18.4477 22 19 22C19.5523 22 20 21.5523 20 21V6C20 4.34315 18.6569 3 17 3Z" fill="white"/>
+            </svg>
           </div>
-          <div className="form-group">
-            <label className="form-label">Tid</label>
-            <input className="form-input" type="time" value={form.time} onChange={e => setForm({ ...form, time: e.target.value })} required />
-          </div>
-          <div className="form-group">
-            <label className="form-label">Antal gäster</label>
-            <input className="form-input" type="number" min={1} value={form.guests} onChange={e => setForm({ ...form, guests: Number(e.target.value) })} />
-          </div>
-          <div className="form-group">
-            <label className="form-label">Namn</label>
-            <input className="form-input" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required />
-          </div>
-          <div className="form-group">
-            <label className="form-label">Telefon</label>
-            <input className="form-input" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} />
-          </div>
-          <div className="form-group">
-            <label className="form-label">Anteckningar</label>
-            <textarea className="form-input" value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} />
-          </div>
+          <h2 className="login-brand">Restaurang Elegante</h2>
+          <p className="login-subtitle">Välkommen till vårt restaurangsystem</p>
+        </div>
+      </div>
 
-          <button className="form-button-full" disabled={loading}>
-            {loading ? 'Skickar…' : 'Bekräfta bokning'}
-          </button>
-        </form>
-      )}
+      <div className="login-right">
+        <div className="login-card" style={{minHeight: 560}}>
+          <h3 className="login-card-title">Boka ditt bord</h3>
+
+          {saved ? (
+            <p>Tack! Din bokning är mottagen.</p>
+          ) : (
+            <form onSubmit={submit}>
+              <div className="form-group">
+                <label className="form-label">Datum</label>
+                <input className="form-input" type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} required />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Tid</label>
+                <input className="form-input" type="time" value={form.time} onChange={e => setForm({ ...form, time: e.target.value })} required />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Antal gäster</label>
+                <input className="form-input" type="number" min={1} value={form.guests} onChange={e => setForm({ ...form, guests: Number(e.target.value) })} />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Namn</label>
+                <input className="form-input" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Telefon</label>
+                <input className="form-input" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Anteckningar</label>
+                <textarea className="form-input" value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} />
+              </div>
+
+              <button className="form-button-full" disabled={loading}>
+                {loading ? 'Skickar…' : 'Bekräfta bokning'}
+              </button>
+            </form>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
-
- 
