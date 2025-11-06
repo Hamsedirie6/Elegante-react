@@ -45,6 +45,8 @@ export default function App() {
     setUsername('');
   };
 
+  // removed auth-based HTML class toggle (menu buttons always visible)
+
   if (isChecking) {
     return (
       <div className="loading">
