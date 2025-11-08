@@ -6,6 +6,8 @@ export default function Reservation() {
   const [saved, setSaved] = useState(false);
   const [form, setForm] = useState({ date: '', time: '', guests: 2, name: '', phone: '', notes: '' });
 
+  const times = ['17:00','17:30','18:00','18:30','19:00','19:30','20:00','20:30','21:00','21:30','22:00'];
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -15,6 +17,10 @@ export default function Reservation() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const updateGuests = (delta: number) => {
+    setForm(f => ({ ...f, guests: Math.max(1, Math.min(20, f.guests + delta)) }));
   };
 
   return (
@@ -33,41 +39,100 @@ export default function Reservation() {
       </div>
 
       <div className="login-right">
-        <div className="login-card" style={{minHeight: 560}}>
+        <div className="login-card" style={{ minHeight: 560 }}>
           <h3 className="login-card-title">Boka ditt bord</h3>
 
           {saved ? (
-            <p>Tack! Din bokning är mottagen.</p>
+            <p className="status-ok">Tack! Din bokning är mottagen.</p>
           ) : (
             <form onSubmit={submit}>
-              <div className="form-group">
-                <label className="form-label">Datum</label>
-                <input className="form-input" type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} required />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Tid</label>
-                <input className="form-input" type="time" value={form.time} onChange={e => setForm({ ...form, time: e.target.value })} required />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Antal gäster</label>
-                <input className="form-input" type="number" min={1} value={form.guests} onChange={e => setForm({ ...form, guests: Number(e.target.value) })} />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Namn</label>
-                <input className="form-input" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Telefon</label>
-                <input className="form-input" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Anteckningar</label>
-                <textarea className="form-input" value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} />
+              <div className="res-grid">
+                <div className="form-group">
+                  <label className="form-label">Datum</label>
+                  <input
+                    className="form-input"
+                    type="date"
+                    value={form.date}
+                    onChange={e => setForm({ ...form, date: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Tid</label>
+                  <select
+                    className="form-input"
+                    value={form.time}
+                    onChange={e => setForm({ ...form, time: e.target.value })}
+                    required
+                  >
+                    <option value="">Välj tid</option>
+                    {times.map(t => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
-              <button className="form-button-full" disabled={loading}>
-                {loading ? 'Skickar…' : 'Bekräfta bokning'}
-              </button>
+              <div className="form-group res-row">
+                <label className="form-label">Antal gäster</label>
+                <div className="guest-stepper">
+                  <button
+                    type="button"
+                    className="stepper-button minus"
+                    onClick={() => updateGuests(-1)}
+                    aria-label="Minska"
+                  >
+                    –
+                  </button>
+                  <div className="guest-value" aria-live="polite">{form.guests}</div>
+                  <button
+                    type="button"
+                    className="stepper-button plus"
+                    onClick={() => updateGuests(1)}
+                    aria-label="Öka"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              <div className="res-grid">
+                <div className="form-group">
+                  <label className="form-label">Namn</label>
+                  <input
+                    className="form-input"
+                    value={form.name}
+                    onChange={e => setForm({ ...form, name: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Telefon</label>
+                  <input
+                    className="form-input"
+                    value={form.phone}
+                    onChange={e => setForm({ ...form, phone: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Anteckningar</label>
+                <textarea
+                  className="form-input"
+                  style={{ height: 120 }}
+                  value={form.notes}
+                  onChange={e => setForm({ ...form, notes: e.target.value })}
+                  placeholder="Allergier, specialönskemål eller andra anteckningar…"
+                />
+              </div>
+
+              <div className="res-footer">
+                <a href="/" className="btn">Avbryt</a>
+                <button className="btn primary" disabled={loading}>
+                  {loading ? 'Skickar…' : 'Bekräfta bokning'}
+                </button>
+              </div>
             </form>
           )}
         </div>
