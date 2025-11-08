@@ -232,7 +232,7 @@ body {
 }
 
 /* Register: centered card page */
-.auth-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--accent); padding: 24px; }
+.auth-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #3b0f0f 0%, #6d1f1f 45%, #842626 100%); padding: 24px; }
 .auth-card { width: min(760px, 92vw); background: #fff; border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 22px 60px rgba(0,0,0,.10); padding: 52px 40px; min-height: 520px; }
 .auth-card-head { display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 22px; }
 .auth-icon { width: 48px; height: 48px; border-radius: 12px; background: var(--accent); display: inline-flex; align-items: center; justify-content: center; color: #fff; }
@@ -243,3 +243,50 @@ body {
 
 /* Generic centered card page (neutral background) */
 .card-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f5f6f8; padding: 24px; }
+
+/* Reservation (Boka bord) */
+.reservation-header { text-align: center; margin: 24px 0 18px; }
+.reservation-header h1 { margin: 0 0 6px; }
+.reservation-subtitle { color: #666; margin: 0; }
+.reservation-card {
+  width: min(760px, 92vw);
+  margin: 0 auto 40px;
+  background: #fff; border: 1px solid var(--border); border-radius: 16px;
+  box-shadow: 0 22px 60px rgba(0,0,0,.06);
+  padding: 24px;
+}
+.res-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.res-row { margin-top: 6px; }
+.guest-stepper { display: inline-flex; align-items: center; gap: 12px; }
+.stepper-button { width: 36px; height: 36px; border: 1px solid var(--border); border-radius: 10px; background: #fff; color: var(--accent); font-weight: 700; cursor: pointer; }
+.stepper-button.plus { background: #05603a; border-color: #05603a; color: #fff; }
+.stepper-button.minus { background: #b42318; border-color: #b42318; color: #fff; }
+.stepper-button.plus:hover { filter: brightness(0.95); }
+.stepper-button.minus:hover { filter: brightness(0.95); }
+.guest-value { width: 56px; height: 40px; line-height: 40px; text-align: center; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+.res-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: 10px; }
+
+@media (max-width: 640px) {
+  .res-grid { grid-template-columns: 1fr; }
+}
+
+/* Cart page */
+.cart-section { width: 100vw; margin-left: calc(50% - 50vw); margin-right: calc(50% - 50vw); background: linear-gradient(135deg, #3b0f0f 0%, #6d1f1f 45%, #842626 100%); padding: 28px 0 40px; }
+.cart-title { text-align: center; margin: 0 0 16px; color: #fff; }
+.cart-card { background:#fff; border:1px solid var(--border); border-radius:14px; box-shadow:0 14px 36px rgba(0,0,0,.12); padding: 14px; }
+.cart-list { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; }
+.cart-row { display:grid; grid-template-columns: 1fr 120px 170px 120px 100px; align-items:center; gap:10px; padding:10px; border:1px solid var(--border); border-radius:10px; background:#fff; }
+.qty-stepper { display:inline-flex; align-items:center; gap:12px; }
+.stepper-button { width:36px; height:36px; border:1px solid var(--border); border-radius:10px; background:#fff; color: var(--accent); font-weight:700; }
+.qty-value { width:56px; height:40px; line-height:40px; text-align:center; border:1px solid var(--border); border-radius:10px; background:#fff; }
+.cart-footer { display:flex; align-items:center; justify-content:space-between; padding: 12px 4px 0; margin-top: 8px; border-top:1px dashed var(--border); }
+.cart-actions { display:flex; gap:10px; }
+
+@media (max-width: 720px){
+  .cart-row { grid-template-columns: 1fr 100px 1fr; grid-template-areas: 'name subtotal actions' 'price qty qty'; }
+  .cart-row .name { grid-area: name; }
+  .cart-row .price { grid-area: price; color:#666; }
+  .cart-row .qty { grid-area: qty; }
+  .cart-row .subtotal { grid-area: subtotal; }
+  .cart-row .actions { grid-area: actions; justify-self:end; }
+}

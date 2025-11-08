@@ -14,34 +14,37 @@ export default function Cart() {
   }
 
   return (
-    <div className="container">
-      <h1>Varukorg</h1>
-      <ul className="cart-list">
-        {items.map(i => (
-          <li className="cart-row" key={i.id}>
-            <span>{i.name}</span>
-            <span>{i.price} kr</span>
-            <div className="qty">
-              <button className="btn" onClick={() => setQuantity(i.id, i.quantity - 1)}>-</button>
-              <input
-                type="number"
-                min={0}
-                value={i.quantity}
-                onChange={e => setQuantity(i.id, Math.max(0, Number(e.target.value) || 0))}
-              />
-              <button className="btn" onClick={() => setQuantity(i.id, i.quantity + 1)}>+</button>
-            </div>
-            <strong>{i.price * i.quantity} kr</strong>
-            <button className="btn" onClick={() => remove(i.id)}>Ta bort</button>
-          </li>
-        ))}
-      </ul>
+    <section className="cart-section">
+      <div className="container">
+        <h1 className="cart-title">Varukorg</h1>
+        <div className="cart-card">
+          <ul className="cart-list">
+          {items.map(i => (
+            <li className="cart-row" key={i.id}>
+              <div className="cell name">{i.name}</div>
+              <div className="cell price">{i.price} kr</div>
+              <div className="cell qty">
+                <div className="qty-stepper">
+                  <button className="stepper-button minus" onClick={() => setQuantity(i.id, Math.max(0, i.quantity - 1))} aria-label="Minska">–</button>
+                  <div className="qty-value" aria-live="polite">{i.quantity}</div>
+                  <button className="stepper-button plus" onClick={() => setQuantity(i.id, i.quantity + 1)} aria-label="Öka">+</button>
+                </div>
+              </div>
+              <div className="cell subtotal"><strong>{i.price * i.quantity} kr</strong></div>
+              <div className="cell actions"><button className="btn" onClick={() => remove(i.id)}>Ta bort</button></div>
+            </li>
+          ))}
+        </ul>
 
-      <div className="total">
-        <strong>Totalt: {total} kr</strong>
-        <button className="btn" onClick={clear}>Töm</button>
-        <Link className="btn primary" to="/kassa">Gå till betalning</Link>
+        <div className="cart-footer">
+          <div className="cart-total"><strong>Totalt: {total} kr</strong></div>
+          <div className="cart-actions">
+            <button className="btn" onClick={clear}>Töm</button>
+            <Link className="btn primary" to="/kassa">Gå till betalning</Link>
+          </div>
+        </div>
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
