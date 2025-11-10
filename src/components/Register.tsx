@@ -17,6 +17,29 @@ export default function Register() {
     setForm((f) => ({ ...f, [name]: type === 'checkbox' ? checked : value }));
   };
 
+  const parseApiError = (err: unknown): string => {
+    const fallback = 'Registreringen misslyckades. Kontrollera uppgifterna.';
+    if (!err) return fallback;
+    const msg = (err as any)?.message ?? '';
+    if (typeof msg === 'string') {
+      const idx = msg.indexOf(':');
+      const raw = idx >= 0 ? msg.slice(idx + 1).trim() : msg;
+      try {
+        const data = JSON.parse(raw);
+        if (data?.details && typeof data.details === 'object') {
+          const vals = Object.values(data.details as Record<string, string>).filter(Boolean);
+          if (vals.length) return vals.join(', ');
+        }
+        if (data?.error && typeof data.error === 'string') return data.error;
+        if (typeof data === 'string') return data;
+        return raw || fallback;
+      } catch {
+        return raw || fallback;
+      }
+    }
+    return fallback;
+  };
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -41,8 +64,8 @@ export default function Register() {
       });
       setOk('Kontot är skapat. Du kan nu logga in.');
       setForm({ email: '', password: '', confirm: '', accept: false });
-    } catch (err: any) {
-      setError('Registreringen misslyckades. Kontrollera uppgifterna.');
+    } catch (err) {
+      setError(parseApiError(err));
     } finally {
       setLoading(false);
     }
