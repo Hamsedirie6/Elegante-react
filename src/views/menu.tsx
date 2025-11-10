@@ -109,7 +109,7 @@ export default function Menu() {
               <p className="muted">{i.description}</p>
               <div className="menu-card-actions">
                 <strong>{i.price} kr</strong>
-                <button className="btn primary" onClick={() => add({ id: i.id, name: i.name, price: i.price, quantity: 1 })}>
+                <button className="btn primary" onClick={() => add({ id: i.id, name: i.name, price: i.price, quantity: 1, image: i.image })}>
                   + Lägg till
                 </button>
               </div>

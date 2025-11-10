@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import { api } from '../services/api';
 
 type Order = {
@@ -11,21 +11,30 @@ type Order = {
 
 export default function Order() {
   const { id } = useParams<{ id: string }>();
+  const location = useLocation();
   const [order, setOrder] = useState<Order | null>(null);
+  const displayCode = useMemo(() => {
+    const url = new URL(window.location.href);
+    const qp = url.searchParams.get('code');
+    // Prefer code from URL or navigation state; fallback to id
+    return (location.state as any)?.shortId || qp || id || '';
+  }, [location.state, id]);
 
   useEffect(() => {
     let mounted = true;
-    if (id) {
-      api.getOrder(id)
+    const backendId = (location.state as any)?.backendId as string | undefined;
+    const toFetch = backendId && typeof backendId === 'string' ? backendId : undefined;
+    if (toFetch) {
+      api.getOrder(toFetch)
         .then(o => { if (mounted) setOrder(o); })
-        .catch(err => console.error('Failed to fetch order:', err));
+        .catch(err => console.warn('Order fetched by backend id failed (showing client code only):', err));
     }
     return () => { mounted = false; };
-  }, [id]);
+  }, [location.state]);
 
   return (
     <div className="container">
-      <h1>Order {id ? `#${id}` : ''}</h1>
+      <h1>Order {displayCode ? `#${displayCode}` : ''}</h1>
       {order ? (
         <>
           <p>Status: {order.status ?? 'Mottagen'}</p>
