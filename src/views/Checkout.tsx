@@ -11,7 +11,7 @@ export default function Checkout() {
   const { items, total, clear, setQuantity } = useCart();
   const navigate = useNavigate();
 
-  const shipping = useMemo(() => (items.length > 0 ? 150 : 0), [items.length]);
+  const shipping = useMemo(() => (items.length > 0 ? 89 : 0), [items.length]);
   // Lower VAT (e.g., food 12%)
   const VAT_RATE = 0.12;
   const vat = useMemo(() => Math.round((total + shipping) * VAT_RATE), [total, shipping]);
@@ -132,7 +132,7 @@ export default function Checkout() {
                             aria-label="Minska"
                             onClick={() => setQuantity(i.id, Math.max(0, i.quantity - 1))}
                           >
-                            −
+                            –
                           </button>
                           <div className="qty-value" aria-live="polite">{i.quantity}</div>
                           <button
@@ -158,7 +158,7 @@ export default function Checkout() {
                 <span>{sek(total)} kr</span>
               </div>
               <div className="sum-row">
-                <span>Frakt</span>
+                <span>Leverans</span>
                 <span>{sek(shipping)} kr</span>
               </div>
               <div className="sum-row">
