@@ -1,19 +1,29 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { api } from '../services/api';
 
 export default function Reservation() {
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
   const [form, setForm] = useState({ date: '', time: '', guests: 2, name: '', phone: '', notes: '' });
+  const [activeTab, setActiveTab] = useState<'book' | 'mine'>('book');
+  const [reservations, setReservations] = useState<any[] | null>(null);
+  const [listLoading, setListLoading] = useState(false);
+  const [listError, setListError] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const times = ['17:00','17:30','18:00','18:30','19:00','19:30','20:00','20:30','21:00','21:30','22:00'];
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setSubmitError(null);
     try {
       await api.createReservation(form);
       setSaved(true);
+      // Keep user on booking tab to see confirmation
+    } catch (err: any) {
+      const msg = err?.message || '';
+      setSubmitError(typeof msg === 'string' ? msg : 'Något gick fel vid bokning');
     } finally {
       setLoading(false);
     }
@@ -22,6 +32,30 @@ export default function Reservation() {
   const updateGuests = (delta: number) => {
     setForm(f => ({ ...f, guests: Math.max(1, Math.min(20, f.guests + delta)) }));
   };
+
+  const refreshReservations = async () => {
+    setListLoading(true);
+    setListError(null);
+    try {
+      const data = await api.getReservations();
+      setReservations(Array.isArray(data) ? data : []);
+    } catch (err: any) {
+      const msg = err?.message || '';
+      if (typeof msg === 'string' && msg.includes('API 403')) {
+        setListError('Du behöver vara inloggad för att se dina bokningar.');
+      } else {
+        setListError('Kunde inte hämta bokningar');
+      }
+    } finally {
+      setListLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'mine' && reservations === null && !listLoading) {
+      refreshReservations();
+    }
+  }, [activeTab]);
 
   return (
     <div className="login-layout">
@@ -40,6 +74,11 @@ export default function Reservation() {
 
       <div className="login-right">
         <div className="login-card" style={{ minHeight: 560 }}>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+            <button type="button" className={"btn" + (activeTab === 'book' ? ' primary' : '')} onClick={() => setActiveTab('book')}>Boka bord</button>
+            <button type="button" className={"btn" + (activeTab === 'mine' ? ' primary' : '')} onClick={() => setActiveTab('mine')}>Mina bokningar</button>
+          </div>
+          <div style={{ display: activeTab === 'book' ? 'block' : 'none' }}>
           <h3 className="login-card-title">Boka ditt bord</h3>
 
           {saved ? (
@@ -127,6 +166,10 @@ export default function Reservation() {
                 />
               </div>
 
+              {submitError && (
+                <p className="status-error" role="alert">{submitError}</p>
+              )}
+
               <div className="res-footer">
                 <a href="/" className="btn">Avbryt</a>
                 <button className="btn primary" disabled={loading}>
@@ -135,6 +178,44 @@ export default function Reservation() {
               </div>
             </form>
           )}
+          </div>
+          <div style={{ display: activeTab === 'mine' ? 'block' : 'none' }}>
+            <h3 className="login-card-title">Mina bokningar</h3>
+            {listLoading && <p>Laddar…</p>}
+            {listError && <p className="status-error">{listError}</p>}
+            {!listLoading && !listError && (
+              <>
+                {reservations && reservations.length === 0 && (
+                  <p>Inga bokningar hittades.</p>
+                )}
+                <div style={{ display: 'grid', gap: 12 }}>
+                  {(reservations || []).map((r: any) => (
+                    <div key={r.id || r.contentItemId || Math.random()} className="login-card" style={{ padding: 16, boxShadow: 'none', border: '1px solid #eee' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                          <div style={{ fontWeight: 600 }}>
+                            {(r.date || r.Date || '') + ' ' + (r.time || r.Time || '')} • {(r.guests || r.Guests || '?')} gäster
+                          </div>
+                          <div style={{ color: '#666', marginTop: 4 }}>
+                            {(r.name || r.Name || '') + ((r.phone || r.Phone) ? ', ' + (r.phone || r.Phone) : '')}
+                          </div>
+                          {(r.notes || r.Notes) && (
+                            <div style={{ color: '#666', marginTop: 4 }}>{r.notes || r.Notes}</div>
+                          )}
+                        </div>
+                        <div style={{ color: '#999', fontSize: 12 }}>
+                          {r.createdUtc || r.CreatedUtc || ''}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ marginTop: 16 }}>
+                  <button className="btn" onClick={refreshReservations}>Uppdatera</button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>
