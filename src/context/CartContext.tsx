@@ -28,6 +28,11 @@ export const CartProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
   const total = useMemo(() => items.reduce((s, i) => s + i.price * i.quantity, 0), [items]);
 
   const add: CartState['add'] = (item) => {
+    const auth = (globalThis as any).__AUTH__ as boolean | undefined;
+    if (!auth) {
+      alert('Logga in för att lägga till i varukorgen.');
+      return;
+    }
     setItems(prev => {
       const found = prev.find(p => p.id === item.id);
       if (found) return prev.map(p => p.id === item.id ? { ...p, quantity: p.quantity + item.quantity } : p);

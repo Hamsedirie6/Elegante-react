@@ -15,7 +15,8 @@ public static class PermissionsACL
     {
         if (user.Identity?.IsAuthenticated != true) return false;
         var isCustomer = user.IsInRole("Customer");
-        return isCustomer && OWNER_ONLY_TYPES.Contains(contentType);
+        var canonical = ContentTypeAliases.Canonicalize(contentType);
+        return isCustomer && OWNER_ONLY_TYPES.Contains(canonical);
     }
 
     public static string? GetOwnerFilter(string contentType, HttpContext context)
@@ -138,6 +139,24 @@ public static class PermissionsACL
 
         if (!hasPermission)
         {
+            // Bootstrap defaults if no explicit RestPermissions exist
+            if (permissions.Count == 0)
+            {
+                var canonical = ContentTypeAliases.Canonicalize(contentType);
+                var isAuth = context.User?.Identity?.IsAuthenticated == true;
+                if (requestMethod == "GET" && canonical.Equals("MenuItem", StringComparison.OrdinalIgnoreCase))
+                {
+                    return null; // allow menu for everyone
+                }
+                if (isAuth && (canonical.Equals("Booking", StringComparison.OrdinalIgnoreCase) || canonical.Equals("Order", StringComparison.OrdinalIgnoreCase)))
+                {
+                    if (requestMethod == "GET" || requestMethod == "POST")
+                    {
+                        return null; // allow basic booking/order for authenticated users
+                    }
+                }
+            }
+
             return Results.Json(new
             {
                 error = "Forbidden",

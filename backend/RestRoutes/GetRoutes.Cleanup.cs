@@ -15,6 +15,15 @@ public static partial class GetRoutes
         if (obj.TryGetValue("DisplayText", out var title))
             clean["title"] = title.GetString()!;
 
+        // Convenience alias for frontend expectations on MenuItem
+        if (!string.IsNullOrEmpty(contentType) && contentType.Equals("MenuItem", StringComparison.OrdinalIgnoreCase))
+        {
+            if (clean.TryGetValue("title", out var t) && t is string ts)
+            {
+                clean["name"] = ts;
+            }
+        }
+
         // Get the content type section (e.g., "Pet", "PetOwner")
         if (obj.TryGetValue(contentType, out var typeSection) && typeSection.ValueKind == JsonValueKind.Object)
         {

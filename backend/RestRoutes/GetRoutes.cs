@@ -21,6 +21,7 @@ public static partial class GetRoutes
             [FromServices] YesSql.ISession session,
             HttpContext context) =>
         {
+            contentType = ContentTypeAliases.Canonicalize(contentType);
             // Check permissions
             var permissionCheck = await PermissionsACL.CheckPermissions(contentType, "GET", context, session);
             if (permissionCheck != null) return permissionCheck;
@@ -49,6 +50,7 @@ public static partial class GetRoutes
             [FromServices] YesSql.ISession session,
             HttpContext context) =>
         {
+            contentType = ContentTypeAliases.Canonicalize(contentType);
             // Check permissions
             var permissionCheck = await PermissionsACL.CheckPermissions(contentType, "GET", context, session);
             if (permissionCheck != null) return permissionCheck;
@@ -70,6 +72,7 @@ public static partial class GetRoutes
             [FromServices] YesSql.ISession session,
             HttpContext context) =>
         {
+            contentType = ContentTypeAliases.Canonicalize(contentType);
             // Check permissions
             var permissionCheck = await PermissionsACL.CheckPermissions(contentType, "GET", context, session);
             if (permissionCheck != null) return permissionCheck;
@@ -98,6 +101,7 @@ public static partial class GetRoutes
             [FromServices] YesSql.ISession session,
             HttpContext context) =>
         {
+            contentType = ContentTypeAliases.Canonicalize(contentType);
             // Check permissions
             var permissionCheck = await PermissionsACL.CheckPermissions(contentType, "GET", context, session);
             if (permissionCheck != null) return permissionCheck;
@@ -119,6 +123,7 @@ public static partial class GetRoutes
             [FromServices] YesSql.ISession session,
             HttpContext context) =>
         {
+            contentType = ContentTypeAliases.Canonicalize(contentType);
             // Check permissions
             var permissionCheck = await PermissionsACL.CheckPermissions(contentType, "GET", context, session);
             if (permissionCheck != null) return permissionCheck;
@@ -148,6 +153,7 @@ public static partial class GetRoutes
             [FromServices] YesSql.ISession session,
             HttpContext context) =>
         {
+            contentType = ContentTypeAliases.Canonicalize(contentType);
             // Check permissions
             var permissionCheck = await PermissionsACL.CheckPermissions(contentType, "GET", context, session);
             if (permissionCheck != null) return permissionCheck;
