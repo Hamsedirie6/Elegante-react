@@ -140,3 +140,6 @@ Thumbs.db
 *.iml
 *.iws
 *.ipr
+
+# Windows reserved device file phantom entry
+CON
