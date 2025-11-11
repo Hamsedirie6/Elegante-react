@@ -34,6 +34,7 @@ public static class PostRoutes
         {
             try
             {
+                contentType = ContentTypeAliases.Canonicalize(contentType);
                 // Check permissions
                 var permissionCheck = await PermissionsACL.CheckPermissions(contentType, "POST", context, session);
                 if (permissionCheck != null) return permissionCheck;
@@ -49,15 +50,7 @@ public static class PostRoutes
                 // Validate fields
                 var validFields = await FieldValidator.GetValidFieldsAsync(contentType, contentManager, session);
                 var (isValid, invalidFields) = FieldValidator.ValidateFields(body, validFields, RESERVED_FIELDS);
-
-                if (!isValid)
-                {
-                    return Results.Json(new {
-                        error = "Invalid fields provided",
-                        invalidFields = invalidFields,
-                        validFields = validFields.OrderBy(f => f).ToList()
-                    }, statusCode: 400);
-                }
+                // Lenient: ignore invalid fields instead of failing
 
                 var contentItem = await contentManager.NewAsync(contentType);
 
@@ -74,6 +67,10 @@ public static class PostRoutes
                 {
                     // Skip all reserved fields
                     if (RESERVED_FIELDS.Contains(kvp.Key))
+                        continue;
+
+                    // Skip invalid fields (lenient mode)
+                    if (!validFields.Contains(kvp.Key))
                         continue;
 
                     var pascalKey = ToPascalCase(kvp.Key);
@@ -133,7 +130,9 @@ public static class PostRoutes
                         // Extract the actual string value, not a wrapped JObject
                         if (jsonElement.ValueKind == JsonValueKind.String)
                         {
-                            contentItem.Content[contentType][pascalKey]["Text"] = jsonElement.GetString();
+                            var s = jsonElement.GetString();
+                            contentItem.Content[contentType][pascalKey]["Text"] = s;
+                            contentItem.Content[contentType][pascalKey]["Value"] = s; // support Date/DateTime fields
                         }
                         else if (jsonElement.ValueKind == JsonValueKind.Number)
                         {
@@ -187,6 +186,7 @@ public static class PostRoutes
                     else if (value is string strValue)
                     {
                         contentItem.Content[contentType][pascalKey]["Text"] = strValue;
+                        contentItem.Content[contentType][pascalKey]["Value"] = strValue; // support Date/DateTime fields
                     }
                     else if (value is int or long or double or float or decimal)
                     {

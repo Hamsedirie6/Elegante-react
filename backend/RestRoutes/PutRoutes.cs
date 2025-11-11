@@ -35,6 +35,7 @@ public static class PutRoutes
         {
             try
             {
+                contentType = ContentTypeAliases.Canonicalize(contentType);
                 // Check permissions
                 var permissionCheck = await PermissionsACL.CheckPermissions(contentType, "PUT", context, session);
                 if (permissionCheck != null) return permissionCheck;
@@ -68,15 +69,7 @@ public static class PutRoutes
                 // Validate fields
                 var validFields = await FieldValidator.GetValidFieldsAsync(contentType, contentManager, session);
                 var (isValid, invalidFields) = FieldValidator.ValidateFields(body, validFields, RESERVED_FIELDS);
-
-                if (!isValid)
-                {
-                    return Results.Json(new {
-                        error = "Invalid fields provided",
-                        invalidFields = invalidFields,
-                        validFields = validFields.OrderBy(f => f).ToList()
-                    }, statusCode: 400);
-                }
+                // Lenient: ignore invalid fields instead of failing
 
                 // Update title if provided
                 if (body.ContainsKey("title"))
@@ -89,6 +82,10 @@ public static class PutRoutes
                 {
                     // Skip all reserved fields
                     if (RESERVED_FIELDS.Contains(kvp.Key))
+                        continue;
+
+                    // Skip invalid fields (lenient mode)
+                    if (!validFields.Contains(kvp.Key))
                         continue;
 
                     var pascalKey = ToPascalCase(kvp.Key);
@@ -148,7 +145,9 @@ public static class PutRoutes
                         // Extract the actual string value, not a wrapped JObject
                         if (jsonElement.ValueKind == JsonValueKind.String)
                         {
-                            contentItem.Content[contentType][pascalKey]["Text"] = jsonElement.GetString();
+                            var s = jsonElement.GetString();
+                            contentItem.Content[contentType][pascalKey]["Text"] = s;
+                            contentItem.Content[contentType][pascalKey]["Value"] = s; // support Date/DateTime fields
                         }
                         else if (jsonElement.ValueKind == JsonValueKind.Number)
                         {

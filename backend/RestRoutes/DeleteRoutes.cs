@@ -16,6 +16,7 @@ public static class DeleteRoutes
         {
             try
             {
+                contentType = ContentTypeAliases.Canonicalize(contentType);
                 // Check permissions
                 var permissionCheck = await PermissionsACL.CheckPermissions(contentType, "DELETE", context, session);
                 if (permissionCheck != null) return permissionCheck;

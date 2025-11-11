@@ -52,8 +52,15 @@ public static class AuthEndpoints
                 });
             }
 
-            // Assign Customer role (must exist in Orchard)
-            await userManager.AddToRoleAsync(user, "Customer");
+            // Assign Customer role (must exist in Orchard) – ignore if missing
+            try
+            {
+                await userManager.AddToRoleAsync(user, "Customer");
+            }
+            catch
+            {
+                // role might not exist yet; user is still created
+            }
 
             return Results.Ok(new
             {

@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface LoginProps {
   onLoginSuccess: () => void;
 }
 
 export default function Login({ onLoginSuccess }: LoginProps) {
+  const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -25,8 +27,12 @@ export default function Login({ onLoginSuccess }: LoginProps) {
       if (!response.ok) {
         throw new Error('Login failed');
       }
-
+      const data = await response.json();
       onLoginSuccess();
+      const roles: string[] = Array.isArray((data as any)?.roles) ? (data as any).roles : [];
+      if (roles.includes('Administrator')) navigate('/admin', { replace: true });
+      else if (roles.includes('Kitchen')) navigate('/kok', { replace: true });
+      else navigate('/', { replace: true });
     } catch (err) {
       setError('Fel e‑post eller lösenord');
     } finally {
@@ -56,11 +62,11 @@ export default function Login({ onLoginSuccess }: LoginProps) {
 
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label className="form-label" htmlFor="email">E‑post</label>
+              <label className="form-label" htmlFor="user">Användarnamn eller e‑post</label>
               <input
-                id="email"
-                type="email"
-                placeholder="din@email.se"
+                id="user"
+                type="text"
+                placeholder="t.ex. tom eller user@example.com"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 disabled={isLoading}
