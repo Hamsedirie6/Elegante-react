@@ -98,6 +98,24 @@ body {
   border-color: var(--accent);
 }
 
+/* Subtle press feedback on click */
+.btn {
+  cursor: pointer;
+  transition: background-color .15s ease, filter .12s ease, transform .08s ease, box-shadow .15s ease;
+}
+.btn:hover { box-shadow: 0 3px 10px rgba(0,0,0,.08); }
+/* Stronger visual feedback on press */
+.btn:active {
+  transform: translateY(1px) scale(0.96);
+  filter: brightness(0.85) saturate(1.05);
+  box-shadow: inset 0 2px 8px rgba(0,0,0,.18);
+}
+.btn.primary:hover { filter: brightness(0.92); }
+.btn.primary:active {
+  filter: brightness(0.75) saturate(1.05);
+  box-shadow: inset 0 3px 10px rgba(0,0,0,.25);
+}
+
 /* Home: fullbredds-hero */
 .home-hero {
   width: 100vw;
