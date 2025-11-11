@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { api } from '../services/api';
+import { ensureOrder, upsertOrder } from '../store/orderStore';
 
 function sek(n: number) {
   return new Intl.NumberFormat('sv-SE', { maximumFractionDigits: 0 }).format(Math.round(n));
@@ -83,11 +84,18 @@ export default function Checkout() {
         lines: items.map(i => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity })),
         total: grandTotal,
       });
+      // Spara till lokal store med klientens 4-siffriga id
+      const linesForStore = items.map(i => ({ name: i.name, quantity: i.quantity, price: i.price }));
+      ensureOrder(shortId, { total: grandTotal, lines: linesForStore, backendId: (result as any)?.id });
+      upsertOrder({ id: shortId, status: 'new', total: grandTotal, lines: linesForStore, backendId: (result as any)?.id, updatedAt: new Date().toISOString() });
       clear();
       // Always navigate using our klient-genererade 4-siffriga nummer
       navigate(`/order/${shortId}`, { state: { shortId, backendId: (result as any)?.id } });
     } catch (error) {
       console.warn('Order API failed, proceeding with local confirmation:', error);
+      const linesForStore = items.map(i => ({ name: i.name, quantity: i.quantity, price: i.price }));
+      ensureOrder(shortId, { total: grandTotal, lines: linesForStore });
+      upsertOrder({ id: shortId, status: 'new', total: grandTotal, lines: linesForStore, updatedAt: new Date().toISOString() });
       clear();
       navigate(`/order/${shortId}`, { state: { shortId } });
     } finally {
