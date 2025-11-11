@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { getAll, subscribe as subscribeOrders, updateStatus } from '../store/orderStore';
 
 type Line = { name: string; quantity: number };
 type KOrder = {
@@ -9,16 +10,25 @@ type KOrder = {
   lines: Line[];
 };
 
-const seed: KOrder[] = [
-  { id: '1247', createdAt: '14:28', status: 'new', lines: [ { name: 'Margherita', quantity: 2 }, { name: 'Pepperoni', quantity: 1 } ] },
-  { id: '1248', createdAt: '14:31', status: 'new', lines: [ { name: 'Quattro Stagioni', quantity: 1 }, { name: 'Capricciosa', quantity: 1 } ] },
-  { id: '1245', createdAt: '14:20', status: 'inprogress', etaMin: 8, lines: [ { name: 'Hawaiian', quantity: 2 } ] },
-  { id: '1244', createdAt: '14:15', status: 'inprogress', etaMin: 5, lines: [ { name: 'Vegetariana', quantity: 1 }, { name: 'Marinara', quantity: 2 } ] },
-  { id: '1243', createdAt: '14:12', status: 'ready', lines: [ { name: 'Carbonara', quantity: 1 } ] }
-];
+function nowHM() {
+  const d = new Date();
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
 
 export default function Kitchen() {
-  const [orders, setOrders] = useState<KOrder[]>(seed);
+  const toKOrder = (o: ReturnType<typeof getAll>[number]): KOrder => ({
+    id: o.id,
+    createdAt: o.updatedAt ? new Date(o.updatedAt).toTimeString().slice(0,5) : nowHM(),
+    status: o.status,
+    lines: (o.lines || []).map(l => ({ name: l.name, quantity: l.quantity })),
+  });
+
+  const [orders, setOrders] = useState<KOrder[]>(() => getAll().map(toKOrder));
+
+  useEffect(() => {
+    const unsub = subscribeOrders(() => setOrders(getAll().map(toKOrder)));
+    return unsub;
+  }, []);
 
   const stats = useMemo(() => ({
     new: orders.filter(o => o.status === 'new').length,
@@ -28,9 +38,9 @@ export default function Kitchen() {
     total: orders.length,
   }), [orders]);
 
-  const accept = (id: string) => setOrders(os => os.map(o => o.id === id ? { ...o, status: 'inprogress', etaMin: 10 } : o));
-  const markReady = (id: string) => setOrders(os => os.map(o => o.id === id ? { ...o, status: 'ready', etaMin: undefined } : o));
-  const markDelivered = (id: string) => setOrders(os => os.map(o => o.id === id ? { ...o, status: 'delivered' } : o));
+  const accept = (id: string) => { updateStatus(id, 'inprogress'); setOrders(os => os.map(o => o.id === id ? { ...o, status: 'inprogress', etaMin: 10 } : o)); };
+  const markReady = (id: string) => { updateStatus(id, 'ready'); setOrders(os => os.map(o => o.id === id ? { ...o, status: 'ready', etaMin: undefined } : o)); };
+  const markDelivered = (id: string) => { updateStatus(id, 'delivered'); setOrders(os => os.map(o => o.id === id ? { ...o, status: 'delivered' } : o)); };
 
   const Section = ({ title, filter, action }: { title: string; filter: KOrder['status']; action?: (id: string) => void }) => (
     <section style={{ marginTop: 18 }}>
@@ -74,7 +84,6 @@ export default function Kitchen() {
         <div className="muted">Aktiva ordrar: <strong>{stats.total}</strong></div>
       </div>
 
-      {/* Top stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0,1fr))', gap: 12 }}>
         <div style={{ border: '1px solid var(--border)', borderRadius: 12, background: '#fff', padding: 12 }}>
           <div className="muted">Nya ordrar</div>
