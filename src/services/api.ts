@@ -3,17 +3,12 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
     'Content-Type': 'application/json',
     ...(options.headers || {}),
   };
-<<<<<<< HEAD
   const res = await fetch(`/api${path}`, {
     ...options,
     headers,
     credentials: 'include',
   });
   
-=======
-  // Ensure auth cookies/session are sent for protected routes
-  const res = await fetch(`/api${path}`, { ...options, headers, credentials: 'include' });
->>>>>>> main
   if (!res.ok) {
     const text = await res.text();
     throw new Error(`API ${res.status}: ${text}`);
