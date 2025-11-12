@@ -13,6 +13,7 @@ public static class SetupRoutes
         app.MapReservationRoutes();
         app.MapSystemRoutes();
         app.MapMediaUploadRoutes();
+        app.MapReservationRoutes();
         app.MapGetRoutes();
         app.MapPostRoutes();
         app.MapPutRoutes();

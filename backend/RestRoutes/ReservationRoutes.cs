@@ -6,6 +6,7 @@ public static class ReservationRoutes
 {
     public static void MapReservationRoutes(this WebApplication app)
     {
+        // Return only the current user's reservations (owner-filtered, clean, not populated)
         app.MapGet("api/my/reservations", async (
             [FromServices] YesSql.ISession session,
             HttpContext context) =>
@@ -15,10 +16,10 @@ public static class ReservationRoutes
                 return Results.Json(new { error = "Unauthorized" }, statusCode: 401);
             }
 
-            var owner = context.User.Identity!.Name ?? string.Empty;
             var contentType = ContentTypeAliases.Canonicalize("reservations");
-            var items = await GetRoutes.FetchCleanContent(contentType, session, populate: false, owner: owner);
-            return Results.Json(items ?? new List<Dictionary<string, object>>());
+            var owner = context.User.Identity!.Name ?? string.Empty;
+            var results = await GetRoutes.FetchCleanContent(contentType, session, populate: false, owner: owner);
+            return Results.Json(results ?? new List<Dictionary<string, object>>());
         });
     }
 }

@@ -29,3 +29,4 @@ export const api = {
     phone?: string;
   }) => apiFetch('/auth/register', { method: 'POST', body: JSON.stringify(payload) }),
 };
+
