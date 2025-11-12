@@ -9,13 +9,10 @@ type KOrder = {
   lines: Line[];
 };
 
-const seed: KOrder[] = [
-  { id: '1247', createdAt: '14:28', status: 'new', lines: [ { name: 'Margherita', quantity: 2 }, { name: 'Pepperoni', quantity: 1 } ] },
-  { id: '1248', createdAt: '14:31', status: 'new', lines: [ { name: 'Quattro Stagioni', quantity: 1 }, { name: 'Capricciosa', quantity: 1 } ] },
-  { id: '1245', createdAt: '14:20', status: 'inprogress', etaMin: 8, lines: [ { name: 'Hawaiian', quantity: 2 } ] },
-  { id: '1244', createdAt: '14:15', status: 'inprogress', etaMin: 5, lines: [ { name: 'Vegetariana', quantity: 1 }, { name: 'Marinara', quantity: 2 } ] },
-  { id: '1243', createdAt: '14:12', status: 'ready', lines: [ { name: 'Carbonara', quantity: 1 } ] }
-];
+function nowHM() {
+  const d = new Date();
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
 
 export default function Kitchen() {
   const [orders, setOrders] = useState<KOrder[]>(seed);
