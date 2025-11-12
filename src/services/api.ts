@@ -3,7 +3,12 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
     'Content-Type': 'application/json',
     ...(options.headers || {}),
   };
-  const res = await fetch(`/api${path}`, { ...options, headers });
+  const res = await fetch(`/api${path}`, {
+    ...options,
+    headers,
+    credentials: 'include',
+  });
+  
   if (!res.ok) {
     const text = await res.text();
     throw new Error(`API ${res.status}: ${text}`);
