@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { api } from '../services/api';
 
 export default function Reservation() {
@@ -20,7 +20,9 @@ export default function Reservation() {
     try {
       await api.createReservation(form);
       setSaved(true);
-      // Keep user on booking tab to see confirmation
+      // Visa bokningen direkt under "Mina bokningar"
+      setActiveTab('mine');
+      await refreshReservations();
     } catch (err: any) {
       const msg = err?.message || '';
       setSubmitError(typeof msg === 'string' ? msg : 'Något gick fel vid bokning');
@@ -42,9 +44,9 @@ export default function Reservation() {
     } catch (err: any) {
       const msg = err?.message || '';
       if (typeof msg === 'string' && msg.includes('API 403')) {
-        setListError('Du behöver vara inloggad för att se dina bokningar.');
+        setListError('Du beh ver vara inloggad f r att se dina bokningar.');
       } else {
-        setListError('Kunde inte hämta bokningar');
+        setListError('Kunde inte h mta bokningar');
       }
     } finally {
       setListLoading(false);
@@ -68,13 +70,13 @@ export default function Reservation() {
             </svg>
           </div>
           <h2 className="login-brand">Restaurang Elegante</h2>
-          <p className="login-subtitle">Välkommen till vårt restaurangsystem</p>
+          <p className="login-subtitle">V lkommen till v rt restaurangsystem</p>
         </div>
       </div>
 
       <div className="login-right">
-        <div className="login-card" style={{ minHeight: 560 }}>
-          <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+        <div className="login-card res-item" style={{ minHeight: 560 }}>
+          <div className="res-tabs">
             <button type="button" className={"btn" + (activeTab === 'book' ? ' primary' : '')} onClick={() => setActiveTab('book')}>Boka bord</button>
             <button type="button" className={"btn" + (activeTab === 'mine' ? ' primary' : '')} onClick={() => setActiveTab('mine')}>Mina bokningar</button>
           </div>
@@ -82,7 +84,7 @@ export default function Reservation() {
           <h3 className="login-card-title">Boka ditt bord</h3>
 
           {saved ? (
-            <p className="status-ok">Tack! Din bokning är mottagen.</p>
+            <p className="status-ok">Tack! Din bokning  r mottagen.</p>
           ) : (
             <form onSubmit={submit}>
               <div className="res-grid">
@@ -104,7 +106,7 @@ export default function Reservation() {
                     onChange={e => setForm({ ...form, time: e.target.value })}
                     required
                   >
-                    <option value="">Välj tid</option>
+                    <option value="">V lj tid</option>
                     {times.map(t => (
                       <option key={t} value={t}>{t}</option>
                     ))}
@@ -113,7 +115,7 @@ export default function Reservation() {
               </div>
 
               <div className="form-group res-row">
-                <label className="form-label">Antal gäster</label>
+                <label className="form-label">Antal g ster</label>
                 <div className="guest-stepper">
                   <button
                     type="button"
@@ -121,14 +123,14 @@ export default function Reservation() {
                     onClick={() => updateGuests(-1)}
                     aria-label="Minska"
                   >
-                    –
+                     
                   </button>
                   <div className="guest-value" aria-live="polite">{form.guests}</div>
                   <button
                     type="button"
                     className="stepper-button plus"
                     onClick={() => updateGuests(1)}
-                    aria-label="Öka"
+                    aria-label=" ka"
                   >
                     +
                   </button>
@@ -162,7 +164,7 @@ export default function Reservation() {
                   style={{ height: 120 }}
                   value={form.notes}
                   onChange={e => setForm({ ...form, notes: e.target.value })}
-                  placeholder="Allergier, specialönskemål eller andra anteckningar…"
+                  placeholder="Allergier, special nskem l eller andra anteckningar "
                 />
               </div>
 
@@ -173,44 +175,59 @@ export default function Reservation() {
               <div className="res-footer">
                 <a href="/" className="btn">Avbryt</a>
                 <button className="btn primary" disabled={loading}>
-                  {loading ? 'Skickar…' : 'Bekräfta bokning'}
+                  {loading ? 'Skickar...' : 'Bekräfta bokning'}
                 </button>
               </div>
             </form>
           )}
           </div>
-          <div style={{ display: activeTab === 'mine' ? 'block' : 'none' }}>
+          <div className="mine-section" style={{ display: activeTab === 'mine' ? 'block' : 'none' }}>
             <h3 className="login-card-title">Mina bokningar</h3>
-            {listLoading && <p>Laddar…</p>}
+            {listLoading && <p>Laddar </p>}
             {listError && <p className="status-error">{listError}</p>}
             {!listLoading && !listError && (
               <>
                 {reservations && reservations.length === 0 && (
                   <p>Inga bokningar hittades.</p>
                 )}
-                <div style={{ display: 'grid', gap: 12 }}>
-                  {(reservations || []).map((r: any) => (
-                    <div key={r.id || r.contentItemId || Math.random()} className="login-card" style={{ padding: 16, boxShadow: 'none', border: '1px solid #eee' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div>
-                          <div style={{ fontWeight: 600 }}>
-                            {(r.date || r.Date || '') + ' ' + (r.time || r.Time || '')} • {(r.guests || r.Guests || '?')} gäster
-                          </div>
-                          <div style={{ color: '#666', marginTop: 4 }}>
-                            {(r.name || r.Name || '') + ((r.phone || r.Phone) ? ', ' + (r.phone || r.Phone) : '')}
-                          </div>
-                          {(r.notes || r.Notes) && (
-                            <div style={{ color: '#666', marginTop: 4 }}>{r.notes || r.Notes}</div>
+                <div className="res-list">
+                  {(reservations || []).map((r: any) => {
+                    const pick = (...paths: string[]) => {
+                      for (const p of paths) {
+                        const segs = p.split('.');
+                        let cur: any = r;
+                        for (const s of segs) { cur = cur?.[s]; if (cur == null) break; }
+                        if (cur != null && cur !== '') return cur;
+                      }
+                      return undefined;
+                    };
+                    const date = pick('date','Date','content.Date','content.Reservation.Date','content.Booking.Date','Date.Value','content.Date.Value','content.Reservation.Date.Value') || '';
+                    const time = pick('time','Time','content.Time','content.Reservation.Time','content.Booking.Time','Time.Value','content.Time.Value','content.Reservation.Time.Value') || '';
+                    const guests = pick('guests','Guests','content.Guests','content.Reservation.Guests','content.Booking.Guests','Guests.Value','content.Guests.Value','content.Reservation.Guests.Value');
+                    const name = pick('name','Name','content.Name','content.Reservation.Name') || '';
+                    const phone = pick('phone','Phone','content.Phone','content.Reservation.Phone') || '';
+                    const notes = pick('notes','Notes','content.Notes','content.Reservation.Notes') || '';
+                    const created = pick('createdUtc','CreatedUtc') || '';
+                    return (
+                      <div key={r.id || r.contentItemId || Math.random()} className="res-item">
+                        <div className="res-item-head">
+                          <div className="res-item-when"><strong>{date}</strong> {time}</div>
+                          <div className="res-item-guests">{guests} gäster</div>
+                        </div>
+                        <div className="res-item-body">
+                          {(name || phone) && (
+                            <div className="res-row"><span className="label">Kontakt:</span> <span>{name}{phone ? `, ${phone}` : ''}</span></div>
+                          )}
+                          {notes && (
+                            <div className="res-row"><span className="label">Notering:</span> <span>{notes}</span></div>
                           )}
                         </div>
-                        <div style={{ color: '#999', fontSize: 12 }}>
-                          {r.createdUtc || r.CreatedUtc || ''}
-                        </div>
+                        {created && <div className="res-item-foot"><span className="muted">Skapad:</span> {created}</div>}
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
-                <div style={{ marginTop: 16 }}>
+                <div className="res-actions">
                   <button className="btn" onClick={refreshReservations}>Uppdatera</button>
                 </div>
               </>
@@ -221,4 +238,7 @@ export default function Reservation() {
     </div>
   );
 }
+
+
+
 

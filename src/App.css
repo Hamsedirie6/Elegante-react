@@ -266,6 +266,10 @@ body {
   min-height: 500px;
   display: flex; flex-direction: column; justify-content: center; gap: 12px;
 }
+/* Reservation tabs positioning to match booking view */
+.login-card.res-item { position: relative; padding-top: 90px; justify-content: flex-start; }
+.login-card.res-item .res-tabs { position: absolute; top: 24px; left: 24px; display: flex; gap: 8px; }
+.login-card.res-item .login-card-title { margin-top: 0; }
 .login-card-title { text-align: center; margin: 4px 0 16px; font-size: 30px; line-height: 1.2; }
 .login-card form { display: flex; flex-direction: column; gap: 12px; }
 .login-card .form-group { margin-bottom: 0; }
@@ -388,6 +392,18 @@ body {
 
 .guest-stepper .stepper-button:focus,
 .qty-stepper.checkout .qty-btn:focus { outline: none; box-shadow: none; border-color: var(--border) !important; }
+
+/* Reservations: list styles (Mina bokningar) */
+.res-list { display: grid; gap: 12px; }
+.res-item { border: 1px solid var(--border); border-radius: 12px; background: #fff; padding: 14px; box-shadow: 0 8px 20px rgba(0,0,0,.04); }
+.res-item-head { display: flex; align-items: center; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.res-item-when { font-weight: 700; }
+.res-item-guests { color: #444; }
+.res-item-body { display: grid; gap: 6px; padding-top: 8px; }
+.res-row .label { color: #666; margin-right: 6px; }
+.res-item-foot { margin-top: 8px; color: #777; font-size: 12px; }
+.res-actions { margin-top: 16px; display: flex; justify-content: flex-end; }
+.res-item-head { gap: 10px; flex-wrap: wrap; }
 
 /* Kitchen page */
 .k-head { display: flex; align-items: center; justify-content: space-between; margin: 6px 0 16px; }
