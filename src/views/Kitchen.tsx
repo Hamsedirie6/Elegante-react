@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
-import { getAll, subscribe as subscribeOrders, updateStatus } from '../store/orderStore';
+﻿import { useEffect, useMemo, useState } from 'react';
 
 type Line = { name: string; quantity: number };
 type KOrder = {
@@ -16,19 +15,12 @@ function nowHM() {
 }
 
 export default function Kitchen() {
-  const toKOrder = (o: ReturnType<typeof getAll>[number]): KOrder => ({
-    id: o.id,
-    createdAt: o.updatedAt ? new Date(o.updatedAt).toTimeString().slice(0, 5) : nowHM(),
-    status: o.status,
-    lines: (o.lines || []).map(l => ({ name: l.name, quantity: l.quantity })),
-  });
-
-  const [orders, setOrders] = useState<KOrder[]>(() => getAll().map(toKOrder));
-  const [lastUpdated, setLastUpdated] = useState<string>(nowHM());
+  const [orders, setOrders] = useState<KOrder[]>(seed);
+  const [lastUpdated, setLastUpdated] = useState<string>('');
 
   useEffect(() => {
-    const unsub = subscribeOrders(() => setOrders(getAll().map(toKOrder)));
-    return unsub;
+    const n = new Date();
+    setLastUpdated(n.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
   }, []);
 
   const stats = useMemo(() => ({
@@ -39,15 +31,19 @@ export default function Kitchen() {
     total: orders.length,
   }), [orders]);
 
-  const refresh = () => setLastUpdated(nowHM());
+  const refresh = () => {
+    const n = new Date();
+    setLastUpdated(n.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+  };
 
-  const accept = (id: string) => { updateStatus(id, 'inprogress'); setOrders(os => os.map(o => o.id === id ? { ...o, status: 'inprogress', etaMin: 10 } : o)); };
-  const markReady = (id: string) => { updateStatus(id, 'ready'); setOrders(os => os.map(o => o.id === id ? { ...o, status: 'ready', etaMin: undefined } : o)); };
-  const markDelivered = (id: string) => { updateStatus(id, 'delivered'); setOrders(os => os.map(o => o.id === id ? { ...o, status: 'delivered' } : o)); };
+  const accept = (id: string) => setOrders(os => os.map(o => o.id === id ? { ...o, status: 'inprogress', etaMin: 10 } : o));
+  const markReady = (id: string) => setOrders(os => os.map(o => o.id === id ? { ...o, status: 'ready', etaMin: undefined } : o));
+  const markDelivered = (id: string) => setOrders(os => os.map(o => o.id === id ? { ...o, status: 'delivered' } : o));
 
   const Section = ({ title, filter, action }: { title: string; filter: KOrder['status']; action?: (id: string) => void }) => {
     const list = orders.filter(o => o.status === filter);
-    const color = filter === 'new' ? 'orange' : filter === 'inprogress' ? 'blue' : 'yellow';
+    const colorClass = filter === 'new' ? 'orange' : filter === 'inprogress' ? 'blue' : 'yellow';
+
     return (
       <section className="k-section">
         <div className="k-section-head">
@@ -56,27 +52,29 @@ export default function Kitchen() {
         </div>
         <div className="k-cards">
           {list.map(o => (
-            <article key={o.id} className={`k-card ${color}`}>
+            <article key={o.id} className={`k-card ${colorClass}`}>
               <header className="k-card-head">
-                <span className={`k-tag ${color}`}>#{o.id}</span>
+                <span className={`k-tag ${colorClass}`}>#{o.id}</span>
                 <span className="muted">{filter === 'inprogress' && o.etaMin != null ? `${o.etaMin} min` : o.createdAt}</span>
               </header>
               <div className="k-card-body">
                 {o.lines.map((l, i) => (
-                  <div key={i} className="k-line"><span>{l.name} x{l.quantity}</span></div>
+                  <div key={i} className="k-line">
+                    <span className="k-line-name">{l.name} x{l.quantity}</span>
+                  </div>
                 ))}
-                <div className="muted" style={{ fontSize: 12 }}>Totalt: {o.lines.reduce((s, l) => s + l.quantity, 0)} pizzor</div>
+                <div className="k-total muted">Totalt: {o.lines.reduce((s, l) => s + l.quantity, 0)} pizzor</div>
                 {filter === 'inprogress' && o.etaMin != null && (
                   <div className="k-progress">
                     <span className="k-pill blue">{o.etaMin} min kvar</span>
-                    <button className="k-okay" onClick={() => action?.(o.id)}>✓</button>
+                    <button className="k-okay" title="Klar" onClick={() => action && action(o.id)}>{'\u2713'}</button>
                   </div>
                 )}
               </div>
               {action && (
                 <footer className="k-card-foot">
                   <button className={`btn ${filter === 'new' ? 'k-accept' : filter === 'ready' ? 'k-send' : ''}`} onClick={() => action(o.id)}>
-                    {filter === 'new' ? 'Acceptera order' : filter === 'inprogress' ? 'Markera som redo' : 'Skicka för leverans'}
+                    {filter === 'new' ? 'Acceptera order' : filter === 'inprogress' ? 'Markera som redo' : 'Skicka f\u00F6r leverans'}
                   </button>
                 </footer>
               )}
@@ -92,7 +90,7 @@ export default function Kitchen() {
       <div className="k-head">
         <div className="k-head-left">
           <h1>Kökssida</h1>
-          <span className="muted">Aktiva ordrar: <span className="k-dot">{stats.total}</span></span>
+          <span className="muted">Aktiva ordrar: <strong>{stats.total}</strong></span>
         </div>
         <div className="k-head-right">
           <button className="btn" onClick={refresh}>Uppdatera</button>
@@ -102,22 +100,34 @@ export default function Kitchen() {
 
       <div className="k-stats">
         <div className="k-stat orange">
-          <div className="k-stat-head"><span>Nya ordrar</span><span className="k-badge">{stats.new}</span></div>
+          <div className="k-stat-head">
+            <span>Nya ordrar</span>
+            <span className="k-badge">{stats.new}</span>
+          </div>
           <div className="k-stat-value">{stats.new}</div>
           <div className="k-stat-sub">Väntar på bekräftelse</div>
         </div>
         <div className="k-stat blue">
-          <div className="k-stat-head"><span>Pågående</span><span className="k-badge">{stats.inprogress}</span></div>
+          <div className="k-stat-head">
+            <span>Pågående</span>
+            <span className="k-badge">{stats.inprogress}</span>
+          </div>
           <div className="k-stat-value">{stats.inprogress}</div>
           <div className="k-stat-sub">Under tillagning</div>
         </div>
         <div className="k-stat yellow">
-          <div className="k-stat-head"><span>Redo</span><span className="k-badge">{stats.ready}</span></div>
+          <div className="k-stat-head">
+            <span>Redo</span>
+            <span className="k-badge">{stats.ready}</span>
+          </div>
           <div className="k-stat-value">{stats.ready}</div>
           <div className="k-stat-sub">Väntar på leverans</div>
         </div>
         <div className="k-stat green">
-          <div className="k-stat-head"><span>Levererade</span><span className="k-badge">{stats.delivered}</span></div>
+          <div className="k-stat-head">
+            <span>Levererade</span>
+            <span className="k-badge">{stats.delivered}</span>
+          </div>
           <div className="k-stat-value">{stats.delivered}</div>
           <div className="k-stat-sub">Idag</div>
         </div>
@@ -125,10 +135,13 @@ export default function Kitchen() {
 
       <div className="k-board">
         <Section title="Nya ordrar" filter="new" action={accept} />
-        <Section title="Pågående" filter="inprogress" action={markReady} />
-        <Section title="Redo för leverans" filter="ready" action={markDelivered} />
+        <Section title="Pågånde" filter="inprogress" action={markReady} />
+        <Section title="Redo för leverens" filter="ready" action={markDelivered} />
       </div>
     </div>
   );
 }
+
+
+
 
