@@ -1,118 +1,146 @@
 import { useMemo, useState } from 'react';
+import '../admin.css';
 
-type Order = { id: string; total: number; time: string; status: 'betald' | 'pågår' | 'redo' };
+type Order = { id: string; table: number; time: string; total: number; status: 'Klar' | 'Tillagning' | 'Ny' };
 type Reservation = { id: string; name: string; time: string; guests: number };
-type MenuItem = { id: string; name: string; price: number; active: boolean };
+type MenuItem = { id: string; name: string; desc: string; price: number; active: boolean };
 
 const seedOrders: Order[] = [
-  { id: '12753', total: 439, time: '12:30', status: 'betald' },
-  { id: '12754', total: 320, time: '13:05', status: 'pågår' },
-  { id: '12755', total: 890, time: '13:20', status: 'redo' }
+  { id: '12847', table: 7, time: '14:32', total: 485, status: 'Klar' },
+  { id: '12846', table: 3, time: '14:28', total: 320, status: 'Tillagning' },
+  { id: '12845', table: 12, time: '14:25', total: 680, status: 'Ny' }
 ];
 
 const seedReservations: Reservation[] = [
-  { id: 'r1', name: 'Anna Andersson', time: '18:00', guests: 2 },
-  { id: 'r2', name: 'Erik Johansson', time: '19:15', guests: 4 },
-  { id: 'r3', name: 'Maria Larsson', time: '20:00', guests: 3 }
+  { id: 'r1', name: 'Anna Andersson', time: '18:00', guests: 4 },
+  { id: 'r2', name: 'Erik Johansson', time: '19:30', guests: 2 },
+  { id: 'r3', name: 'Maria Larsson', time: '20:15', guests: 6 }
 ];
 
 const seedMenu: MenuItem[] = [
-  { id: 'm1', name: 'Gnocchi', price: 285, active: true },
-  { id: 'm2', name: 'Pasta Carbonara', price: 195, active: true },
-  { id: 'm3', name: 'Bruschetta', price: 145, active: false }
+  { id: 'm1', name: 'Grillad lax', desc: 'Med citronsmör och grönsaker', price: 285, active: true },
+  { id: 'm2', name: 'Pasta Carbonara', desc: 'Klassisk italiensk pasta', price: 195, active: true },
+  { id: 'm3', name: 'Entrecôte', desc: '250g med bearnaisesås', price: 345, active: false }
 ];
 
 export default function Admin() {
-  const [orders, setOrders] = useState<Order[]>(seedOrders);
+  const [orders] = useState<Order[]>(seedOrders);
   const [reservations] = useState<Reservation[]>(seedReservations);
-  const [menu, setMenu] = useState<MenuItem[]>(seedMenu);
+  const [menu] = useState<MenuItem[]>(seedMenu);
 
   const stats = useMemo(() => ({
-    totalOrdersToday: 127,
-    activeOrders: 34,
-    reservationsToday: 42,
+    todaysOrders: 127,
+    activeReservations: 34,
+    menuItems: 42,
   }), []);
 
-  const toggleItem = (id: string) => setMenu(ms => ms.map(m => m.id === id ? { ...m, active: !m.active } : m));
+  const StatIcon = ({ children }: { children: React.ReactNode }) => (
+    <span className="stat-icon" aria-hidden>{children}</span>
+  );
 
   return (
     <div className="container">
-      <h1>Admin – Dashboard</h1>
+      <header className="dash-head">
+        <div>
+          <h1 style={{ margin: 0 }}>Dashboard</h1>
+          <div className="muted">Översikt av restaurangverksamhet</div>
+        </div>
+        <div className="dash-actions">
+          <button className="icon-btn" title="Aviseringar" aria-label="Aviseringar">🔔</button>
+          <div className="avatar" aria-hidden>GA</div>
+        </div>
+      </header>
 
       {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0,1fr))', gap: 12, marginBottom: 16 }}>
-        <div style={{ border: '1px solid var(--border)', background: '#fff', borderRadius: 12, padding: 12 }}>
-          <div className="muted">Dagens beställningar</div>
-          <div style={{ fontSize: 28, fontWeight: 700 }}>{stats.totalOrdersToday}</div>
+      <section className="dash-stats">
+        <div className="stat">
+          <div className="stat-head">
+            <span className="muted">Dagens beställningar</span>
+            <StatIcon>🗓️</StatIcon>
+          </div>
+          <div className="stat-value">{stats.todaysOrders}</div>
         </div>
-        <div style={{ border: '1px solid var(--border)', background: '#fff', borderRadius: 12, padding: 12 }}>
-          <div className="muted">Aktiva beställningar</div>
-          <div style={{ fontSize: 28, fontWeight: 700 }}>{stats.activeOrders}</div>
+        <div className="stat">
+          <div className="stat-head">
+            <span className="muted">Aktiva reservationer</span>
+            <StatIcon>📅</StatIcon>
+          </div>
+          <div className="stat-value">{stats.activeReservations}</div>
         </div>
-        <div style={{ border: '1px solid var(--border)', background: '#fff', borderRadius: 12, padding: 12 }}>
-          <div className="muted">Reservationer</div>
-          <div style={{ fontSize: 28, fontWeight: 700 }}>{stats.reservationsToday}</div>
+        <div className="stat">
+          <div className="stat-head">
+            <span className="muted">Menyrätter</span>
+            <StatIcon>🍽️</StatIcon>
+          </div>
+          <div className="stat-value">{stats.menuItems}</div>
         </div>
-      </div>
+      </section>
 
       {/* Lists */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-        <section style={{ border: '1px solid var(--border)', background: '#fff', borderRadius: 12 }}>
-          <header style={{ padding: 12, borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between' }}>
+      <section className="dash-grid">
+        <div className="card">
+          <div className="card-head">
             <strong>Senaste beställningar</strong>
-            <button className="btn">Visa alla</button>
-          </header>
-          <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+            <button className="btn"><span aria-hidden>👁️</span> Visa alla</button>
+          </div>
+          <ul className="list">
             {orders.map(o => (
-              <li key={o.id} style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: 12, padding: 12, borderTop: '1px solid var(--border)' }}>
-                <span>#{o.id} · {o.time}</span>
-                <span className="muted">{o.status}</span>
-                <strong>{o.total} kr</strong>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <section style={{ border: '1px solid var(--border)', background: '#fff', borderRadius: 12 }}>
-          <header style={{ padding: 12, borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between' }}>
-            <strong>Dagens reservationer</strong>
-            <button className="btn primary">Ny reservation</button>
-          </header>
-          <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-            {reservations.map(r => (
-              <li key={r.id} style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 12, padding: 12, borderTop: '1px solid var(--border)' }}>
+              <li key={o.id} className="row">
                 <div>
-                  <strong>{r.name}</strong>
-                  <div className="muted">{r.time} · {r.guests} pers</div>
+                  <div className="row-title">#{o.id}</div>
+                  <div className="muted">Bord {o.table} • {o.time}</div>
                 </div>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <button className="btn">✎</button>
-                  <button className="btn">🗑</button>
+                <div className="row-amt">{o.total} kr</div>
+                <span className={
+                  o.status === 'Klar' ? 'chip green' : o.status === 'Tillagning' ? 'chip amber' : 'chip blue'}
+                >{o.status}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="card">
+          <div className="card-head">
+            <strong>Dagens reservationer</strong>
+            <button className="btn primary">+ Ny reservation</button>
+          </div>
+          <ul className="list">
+            {reservations.map(r => (
+              <li key={r.id} className="row">
+                <div>
+                  <div className="row-title">{r.name}</div>
+                  <div className="muted">{r.guests} personer • {r.time}</div>
+                </div>
+                <div className="row-actions">
+                  <button className="icon-btn" title="Redigera" aria-label={`Redigera ${r.name}`}>✏️</button>
+                  <button className="icon-btn" title="Ta bort" aria-label={`Ta bort ${r.name}`}>🗑️</button>
                 </div>
               </li>
             ))}
           </ul>
-        </section>
-      </div>
+        </div>
+      </section>
 
       {/* Menu management */}
-      <section style={{ marginTop: 18, border: '1px solid var(--border)', background: '#fff', borderRadius: 12 }}>
-        <header style={{ padding: 12, borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between' }}>
-          <strong>Menystyrning</strong>
+      <section className="card" style={{ marginTop: 18 }}>
+        <div className="card-head">
+          <strong>Menyhantering</strong>
           <button className="btn primary">+ Lägg till rätt</button>
-        </header>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0,1fr))', gap: 12, padding: 12 }}>
+        </div>
+        <div className="menu-admin-grid">
           {menu.map(m => (
-            <article key={m.id} style={{ border: '1px solid var(--border)', borderRadius: 10, padding: 12 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <article key={m.id} className="menu-admin-card">
+              <div className="menu-admin-top">
                 <strong>{m.name}</strong>
-                <span>{m.price} kr</span>
+                <div className="menu-admin-actions">
+                  <button className="icon-btn" title={`Redigera ${m.name}`}>✏️</button>
+                  <button className="icon-btn" title={`Ta bort ${m.name}`}>🗑️</button>
+                </div>
               </div>
-              <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
-                <button className="btn">Redigera</button>
-                <button className="btn" onClick={() => toggleItem(m.id)}>
-                  {m.active ? 'Inaktivera' : 'Aktivera'}
-                </button>
+              <div className="muted">{m.desc}</div>
+              <div className="menu-admin-foot">
+                <strong>{m.price} kr</strong>
+                <span className={m.active ? 'chip green' : 'chip gray'}>{m.active ? 'Aktiv' : 'Slut'}</span>
               </div>
             </article>
           ))}
@@ -121,4 +149,3 @@ export default function Admin() {
     </div>
   );
 }
-
