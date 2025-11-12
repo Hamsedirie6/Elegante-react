@@ -10,6 +10,7 @@ public static class SetupRoutes
         app.UseMiddleware<AdminScriptInjectorMiddleware>();
 
         app.MapAuthEndpoints();
+        app.MapReservationRoutes();
         app.MapSystemRoutes();
         app.MapMediaUploadRoutes();
         app.MapGetRoutes();
