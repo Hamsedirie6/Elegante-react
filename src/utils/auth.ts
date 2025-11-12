@@ -1,9 +1,13 @@
 export async function checkAuth() {
   try {
+<<<<<<< HEAD
     const response = await fetch('/api/auth/login', {
       credentials: 'include',
     });
     
+=======
+    const response = await fetch('/api/auth/login', { credentials: 'include' });
+>>>>>>> main
 
     if (response.ok) {
       const data = await response.json();
@@ -19,8 +23,13 @@ export async function checkAuth() {
 export async function logout() {
   try {
     await fetch('/api/auth/login', {
+<<<<<<< HEAD
       method: 'DELETE',
       credentials: 'include',
+=======
+      method: 'DELETE'
+      , credentials: 'include'
+>>>>>>> main
     });
     
     return true;
