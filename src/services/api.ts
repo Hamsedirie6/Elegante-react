@@ -19,6 +19,11 @@ export const api = {
   getReservations: () => apiFetch<any[]>('/my/reservations'),
   createOrder: (payload: any) => apiFetch<{ id: string }>('/orders', { method: 'POST', body: JSON.stringify(payload) }),
   getOrder: (id: string) => apiFetch<any>(`/orders/${id}`),
+  // Orders (admin use)
+  getOrdersExpanded: () => apiFetch<any[]>(`/expand/orders`),
+  getOrdersRaw: () => apiFetch<any[]>(`/raw/orders`),
+  // Admin reservations (all) – safe: expands and cleans
+  getAllReservations: () => apiFetch<any[]>(`/expand/reservations`),
   // Auth
   register: (payload: {
     username: string;
