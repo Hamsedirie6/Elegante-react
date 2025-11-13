@@ -65,34 +65,6 @@ export default function App() {
     );
   }
 
-  const Home = () => (
-    <div className="container">
-      <h1>Välkommen till Elegante</h1>
-      <p>smak, stil och glädje</p>
-    </div>
-  );
-
-  const Menu = () => (
-    <div className="container">
-      <h1>Meny</h1>
-      <p>Här visar vi rätter från backend senare.</p>
-    </div>
-  );
-
-  const Reservation = () => (
-    <div className="container">
-      <h1>Boka bord</h1>
-      <p>Form kommer i nästa steg.</p>
-    </div>
-  );
-
-  const Cart = () => (
-    <div className="container">
-      <h1>Varukorg</h1>
-      <p>Beställningar visas här.</p>
-    </div>
-  );
-
   return (
     <CartProvider>
     <BrowserRouter>

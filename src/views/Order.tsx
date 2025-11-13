@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import { api } from '../services/api';
 import { getOrder as getLocalOrder, subscribe as subscribeOrders } from '../store/orderStore';
