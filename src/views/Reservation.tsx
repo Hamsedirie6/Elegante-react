@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../services/api';
+import { addReservation as storeReservation } from '../store/reservationStore';
 
 export default function Reservation() {
   const [loading, setLoading] = useState(false);
@@ -18,7 +19,16 @@ export default function Reservation() {
     setLoading(true);
     setSubmitError(null);
     try {
-      await api.createReservation(form);
+      const savedReservation = await api.createReservation(form);
+      storeReservation({
+        id: savedReservation?.id ? String(savedReservation.id) : undefined,
+        name: form.name,
+        date: form.date,
+        time: form.time,
+        guests: form.guests,
+        phone: form.phone,
+        notes: form.notes,
+      });
       setSaved(true);
       // Keep user on booking tab to see confirmation
     } catch (err: any) {
