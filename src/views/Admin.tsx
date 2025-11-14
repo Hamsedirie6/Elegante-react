@@ -1,17 +1,102 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
-import { getAll as getLocalOrders } from '../store/orderStore';
+import type { StoredOrder, KitchenStatus } from '../store/orderStore';
+import { getAll as getLocalOrders, subscribe as subscribeOrders } from '../store/orderStore';
+import type { StoredReservation } from '../store/reservationStore';
+import { getAll as getStoredReservations, subscribe as subscribeReservations } from '../store/reservationStore';
 import '../admin.css';
 
-type Order = { id: string; short?: string; table: number; time: string; total: number; status: 'Klar' | 'Tillagning' | 'Ny' };
-type Reservation = { id: string; name: string; time: string; guests: number };
+type Order = { id: string; short?: string; table: number; time: string; total: number; status: 'Klar' | 'Tillagning' | 'Ny'; createdAt?: string };
+type Reservation = { id: string; name: string; time: string; guests: number; createdAt?: string };
 type MenuItem = { id: string; name: string; desc: string; price: number; active: boolean; image?: string };
+
+const DEFAULT_MENU_ITEMS = 9;
+
+const statusLabels: Record<KitchenStatus, Order['status']> = {
+  new: 'Ny',
+  inprogress: 'Tillagning',
+  ready: 'Klar',
+  delivered: 'Klar',
+};
+
+const formatTimeHM = (iso?: string) => {
+  if (!iso) return '';
+  try {
+    return new Date(iso).toTimeString().slice(0, 5);
+  } catch {
+    return '';
+  }
+};
+
+const localOrderToView = (order: StoredOrder): Order => {
+  const total = typeof order.total === 'number'
+    ? order.total
+    : (order.lines || []).reduce((sum, line) => sum + (line.price || 0) * line.quantity, 0);
+  return {
+    id: order.backendId || order.id,
+    short: order.id,
+    table: 0,
+    time: formatTimeHM(order.updatedAt),
+    total,
+    status: statusLabels[order.status] || 'Ny',
+    createdAt: order.updatedAt,
+  };
+};
+
+const mergeOrders = (localOrders: StoredOrder[], remoteOrders: Order[]): Order[] => {
+  const merged = new Map<string, Order>();
+  remoteOrders.forEach(order => {
+    const key = order.short || order.id;
+    if (key) merged.set(key, order);
+  });
+  localOrders
+    .map(localOrderToView)
+    .forEach(order => {
+      const key = order.short || order.id;
+      if (!key) return;
+      const existing = merged.get(key);
+      merged.set(key, existing ? { ...existing, ...order } : order);
+    });
+  return Array.from(merged.values()).sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+};
+
+const localReservationToView = (reservation: StoredReservation): Reservation => ({
+  id: reservation.id,
+  name: reservation.name,
+  time: reservation.date ? `${reservation.date} ${reservation.time}` : reservation.time,
+  guests: reservation.guests,
+  createdAt: reservation.createdAt,
+});
+
+const mergeReservations = (localReservations: StoredReservation[], remoteReservations: Reservation[]): Reservation[] => {
+  const merged = new Map<string, Reservation>();
+  remoteReservations.forEach(res => {
+    const key = res.id || `${res.name}-${res.time}`;
+    merged.set(key, res);
+  });
+  localReservations
+    .map(localReservationToView)
+    .forEach(res => {
+      const key = res.id || `${res.name}-${res.time}`;
+      const existing = key ? merged.get(key) : undefined;
+      merged.set(key, existing ? { ...existing, ...res } : res);
+    });
+  return Array.from(merged.values()).sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+};
 
 export default function Admin() {
   const navigate = useNavigate();
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [reservations, setReservations] = useState<Reservation[]>([]);
+  const [localOrders, setLocalOrders] = useState<StoredOrder[]>(() => getLocalOrders());
+  const [remoteOrders, setRemoteOrders] = useState<Order[]>([]);
+  const orders = useMemo(() => mergeOrders(localOrders, remoteOrders), [localOrders, remoteOrders]);
+
+  const [localReservations, setLocalReservations] = useState<StoredReservation[]>(() => getStoredReservations());
+  const [remoteReservations, setRemoteReservations] = useState<Reservation[]>([]);
+  const reservations = useMemo(
+    () => mergeReservations(localReservations, remoteReservations),
+    [localReservations, remoteReservations]
+  );
   const [menu, setMenu] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [showNew, setShowNew] = useState(false);
@@ -19,10 +104,19 @@ export default function Admin() {
   const [showDelete, setShowDelete] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
 
+  useEffect(() => {
+    const unsubOrders = subscribeOrders(() => setLocalOrders(getLocalOrders()));
+    const unsubReservations = subscribeReservations(() => setLocalReservations(getStoredReservations()));
+    return () => {
+      unsubOrders?.();
+      unsubReservations?.();
+    };
+  }, []);
+
   const stats = useMemo(() => ({
     todaysOrders: orders.length,
     activeReservations: reservations.length,
-    menuItems: menu.length,
+    menuItems: menu.length || DEFAULT_MENU_ITEMS,
   }), [orders, reservations, menu]);
 
   const StatIcon = ({ children }: { children: React.ReactNode }) => (
@@ -62,24 +156,30 @@ export default function Admin() {
         } catch {}
 
         const mappedOrders: Order[] = (exp as any[])
-          .map(o => ({
-            id: String(o.id || ''),
-            // 1) från localStorage-karta (backendId -> shortId)
-            // 2) eller extrahera 4 siffror från orderns title
-            short: (shortByBackend[String(o.id || '')]
-              || (typeof o.title === 'string' && (o.title.match(/(\d{4})/)?.[1] || undefined))) as string | undefined,
-            table: Number(o.table || 0) || 0,
-            time: toTime(timeById[String(o.id || '')]),
-            total: Number(o.total || 0) || 0,
-            status: (String(o.status || 'Ny') as Order['status'])
-          }))
-          .sort((a,b) => (b.time||'').localeCompare(a.time||''));
+          .map(o => {
+            const backendId = String(o.id || '');
+            const createdAt = timeById[backendId];
+            return {
+              id: backendId,
+              // 1) från localStorage-karta (backendId -> shortId)
+              // 2) eller extrahera 4 siffror från orderns title
+              short: (shortByBackend[backendId]
+                || (typeof o.title === 'string' && (o.title.match(/(\d{4})/)?.[1] || undefined))) as string | undefined,
+              table: Number(o.table || 0) || 0,
+              time: toTime(createdAt),
+              total: Number(o.total || 0) || 0,
+              status: (String(o.status || 'Ny') as Order['status']),
+              createdAt,
+            };
+          })
+          .sort((a,b) => (b.createdAt||'').localeCompare(a.createdAt||''));
 
         const mappedRes: Reservation[] = (res as any[]).slice(0, 3).map(r => ({
           id: String(r.id || ''),
           name: String(r.name || r.title || ''),
           time: String(r.time || r.Time || ''),
           guests: Number(r.guests || r.Guests || 0) || 0,
+          createdAt: String((r as any)?.CreatedUtc || (r as any)?.createdAt || '') || undefined,
         }));
 
         const mappedMenu: MenuItem[] = (menuItems as any[]).map(m => ({
@@ -92,8 +192,8 @@ export default function Admin() {
         }));
 
         if (!mounted) return;
-        setOrders(mappedOrders);
-        setReservations(mappedRes);
+        setRemoteOrders(mappedOrders);
+        setRemoteReservations(mappedRes);
         setMenu(mappedMenu);
       } finally {
         if (mounted) setLoading(false);

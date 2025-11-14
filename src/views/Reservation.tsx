@@ -1,5 +1,6 @@
 ﻿import { useEffect, useState } from 'react';
 import { api } from '../services/api';
+import { addReservation as storeReservation } from '../store/reservationStore';
 
 export default function Reservation() {
   const [loading, setLoading] = useState(false);
