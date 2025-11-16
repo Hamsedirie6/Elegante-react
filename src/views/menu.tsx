@@ -58,10 +58,20 @@ export default function Menu() {
     let mounted = true;
     api.getMenu()
       .then(data => {
-        if (mounted) {
-          const list = Array.isArray(data) && data.length ? data as Dish[] : placeholder;
-          setItems(withReplacedImages(list));
+        if (!mounted) return;
+        let list: Dish[];
+        if (Array.isArray(data) && data.length) {
+          list = (data as any[]).map(d => ({
+            id: String(d.id ?? ''),
+            name: String(d.name ?? d.title ?? 'Untitled'),
+            description: String(d.description ?? d.desc ?? d.subTitle ?? ''),
+            price: Number(d.price ?? 0) || 0,
+            image: (d.image || d.mediaUrl) as string | undefined,
+          }));
+        } else {
+          list = placeholder;
         }
+        setItems(withReplacedImages(list));
       })
       .catch(() => { if (mounted) setItems(withReplacedImages(placeholder)); })
       .finally(() => { if (mounted) setLoading(false); });

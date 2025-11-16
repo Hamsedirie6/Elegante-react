@@ -80,6 +80,9 @@ export default function Checkout() {
     const shortId = String(Math.floor(1000 + Math.random() * 9000));
     try {
       const result = await api.createOrder({
+        // Sätt 4-siffrig kod som titel så admin kan visa den
+        title: shortId,
+        clientCode: shortId,
         customer: { name: cardName },
         lines: items.map(i => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity })),
         total: grandTotal,
