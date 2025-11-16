@@ -92,51 +92,34 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
 }
 
 export const api = {
-  getMenu: () => apiFetch<MenuItemDto[]>('/menu'),
-  getMenuExpanded: () => apiFetch<MenuItemDto[]>('/expand/menu'),
-  createMenuItem: (payload: MenuItemPayload) =>
-    apiFetch<MenuItemDto>('/menu', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    }),
-  updateMenuItem: (id: string, payload: MenuItemPayload) =>
-    apiFetch<MenuItemDto>(`/menu/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(payload),
-    }),
+  getMenu: () => apiFetch<any[]>('/menu'),
+  getMenuExpanded: () => apiFetch<any[]>(`/expand/menu`),
+  createMenuItem: (payload: any) =>
+    apiFetch<any>('/menu', { method: 'POST', body: JSON.stringify(payload) }),
+  updateMenuItem: (id: string, payload: any) =>
+    apiFetch<any>(`/menu/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),
   deleteMenuItem: (id: string) =>
-    apiFetch<void>(`/menu/${id}`, {
-      method: 'DELETE',
-    }),
-  createReservation: (payload: ReservationPayload) =>
-    apiFetch<ReservationDto>('/reservations', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    }),
-  getReservations: () => apiFetch<ReservationDto[]>('/reservations'),
-  updateReservation: (id: string, payload: ReservationUpdatePayload) =>
-    apiFetch<ReservationDto>(`/reservations/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(payload),
-    }),
-  deleteReservation: (id: string) =>
-    apiFetch<void>(`/reservations/${id}`, {
-      method: 'DELETE',
-    }),
-  getAllReservations: () => apiFetch<ReservationDto[]>('/expand/reservations'),
-  createOrder: (payload: OrderPayload) =>
-    apiFetch<{ id: string }>('/orders', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    }),
-  getOrder: (id: string) => apiFetch<OrderDto>(`/orders/${id}`),
-  updateOrder: (id: string, payload: OrderUpdatePayload) =>
-    apiFetch<OrderDto>(`/orders/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(payload),
-    }),
-  getOrdersExpanded: () => apiFetch<OrderDto[]>('/expand/orders'),
-  getOrdersRaw: () => apiFetch<OrderDto[]>('/raw/orders'),
+    apiFetch<any>(`/menu/${id}`, { method: 'DELETE' }),
+
+  // ⬇⬇⬇ ÄNDRAD RAD – POSTA TILL /booking I STÄLLET FÖR /reservations ⬇⬇⬇
+  createReservation: (payload: any) =>
+    apiFetch('/booking', { method: 'POST', body: JSON.stringify(payload) }),
+
+  // Hämtar inloggade användarens bokningar (via ReservationRoutes)
+  getReservations: () => apiFetch<any[]>('/my/reservations'),
+
+  createOrder: (payload: any) =>
+    apiFetch<{ id: string }>('/orders', { method: 'POST', body: JSON.stringify(payload) }),
+  getOrder: (id: string) => apiFetch<any>(`/orders/${id}`),
+
+  // Orders (admin use)
+  getOrdersExpanded: () => apiFetch<any[]>(`/expand/orders`),
+  getOrdersRaw: () => apiFetch<any[]>(`/raw/orders`),
+
+  // Admin reservations (alla bokningar – via expand/alias)
+  getAllReservations: () => apiFetch<any[]>(`/expand/reservations`),
+
+  // Auth
   register: (payload: {
     username: string;
     email: string;
@@ -145,7 +128,7 @@ export const api = {
     lastName?: string;
     phone?: string;
   }) =>
-    apiFetch<void>('/auth/register', {
+    apiFetch('/auth/register', {
       method: 'POST',
       body: JSON.stringify(payload),
     }),

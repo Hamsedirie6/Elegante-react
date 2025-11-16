@@ -42,17 +42,24 @@ public static class PostRoutes
                 // Check if body is null or empty
                 if (body == null || body.Count == 0)
                 {
-                    return Results.Json(new {
+                    return Results.Json(new
+                    {
                         error = "Cannot read request body"
                     }, statusCode: 400);
                 }
 
-                // Validate fields
+                // Validate fields (vi loggar men skippar inte längre fälten)
                 var validFields = await FieldValidator.GetValidFieldsAsync(contentType, contentManager, session);
                 var (isValid, invalidFields) = FieldValidator.ValidateFields(body, validFields, RESERVED_FIELDS);
-                // Lenient: ignore invalid fields instead of failing
+                // Lenient: ignore invalid fields instead of failing – vi filtrerar inte bort dem längre
 
                 var contentItem = await contentManager.NewAsync(contentType);
+
+                // Se till att content-sektionen för typen finns (t.ex. "Booking")
+                if (contentItem.Content[contentType] == null)
+                {
+                    contentItem.Content[contentType] = new JObject();
+                }
 
                 // Extract and handle special fields explicitly
                 contentItem.DisplayText = body.ContainsKey("title")
@@ -65,12 +72,8 @@ public static class PostRoutes
                 // Build content directly into the content item
                 foreach (var kvp in body)
                 {
-                    // Skip all reserved fields
+                    // Skip all reserved fields (ContentItemId, Title m.m.)
                     if (RESERVED_FIELDS.Contains(kvp.Key))
-                        continue;
-
-                    // Skip invalid fields (lenient mode)
-                    if (!validFields.Contains(kvp.Key))
                         continue;
 
                     var pascalKey = ToPascalCase(kvp.Key);
@@ -190,7 +193,8 @@ public static class PostRoutes
                     }
                     else if (value is int or long or double or float or decimal)
                     {
-                        contentItem.Content[contentType][pascalKey] = new JObject {
+                        contentItem.Content[contentType][pascalKey] = new JObject
+                        {
                             ["Value"] = JToken.FromObject(value)
                         };
                     }
@@ -199,14 +203,16 @@ public static class PostRoutes
                 await contentManager.CreateAsync(contentItem, VersionOptions.Published);
                 await session.SaveChangesAsync();
 
-                return Results.Json(new {
+                return Results.Json(new
+                {
                     id = contentItem.ContentItemId,
                     title = contentItem.DisplayText
                 }, statusCode: 201);
             }
             catch (Exception ex)
             {
-                return Results.Json(new {
+                return Results.Json(new
+                {
                     error = ex.Message
                 }, statusCode: 500);
             }
